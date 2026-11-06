@@ -1,0 +1,238 @@
+:host {
+    display: block;
+    min-height: 100vh;
+}
+
+.auth-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.1fr);
+    background: #f5f7fb;
+    color: #172033;
+}
+
+.login-card {
+    width: min(420px, calc(100% - 48px));
+    margin: auto;
+    position: relative;
+}
+
+.brand-mark {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    color: #fff;
+    background: #2563eb;
+    font-size: 1.6rem;
+    font-weight: 800;
+    box-shadow: 0 10px 24px #2563eb40;
+}
+
+.language-row {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+}
+
+.language-button {
+    border: 0;
+    background: transparent;
+    color: #526078;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 8px;
+}
+
+.eyebrow,
+.panel-label {
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 48px 0 14px;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+}
+
+.subtitle {
+    color: #68748b;
+    margin: 14px 0 34px;
+}
+
+form {
+    display: grid;
+    gap: 9px;
+}
+
+label {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #33415c;
+}
+
+input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d9e0eb;
+    border-radius: 10px;
+    padding: 13px 14px;
+    background: #fff;
+    color: #172033;
+    font: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px #2563eb18;
+}
+
+input[aria-invalid="true"] {
+    border-color: #dc3545;
+}
+
+.field-error,
+.form-error {
+    color: #b42318;
+    font-size: 0.82rem;
+}
+
+.form-error {
+    margin: 12px 0 3px;
+    padding: 11px 13px;
+    border-radius: 9px;
+    background: #fff0ef;
+}
+
+.submit-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    border: 0;
+    border-radius: 10px;
+    margin-top: 18px;
+    padding: 14px;
+    background: #2563eb;
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.submit-button:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid #ffffff66;
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+.welcome-panel {
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(40px, 8vw, 110px);
+    background: #14213d;
+    color: #fff;
+}
+
+.welcome-panel h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+}
+
+.welcome-panel p {
+    position: relative;
+    z-index: 1;
+    color: #b9c6df;
+    margin: 22px 0 0;
+    max-width: 300px;
+    line-height: 1.6;
+}
+
+.panel-label {
+    position: relative;
+    z-index: 1;
+    color: #8ab4ff;
+    margin: 0 0 22px;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(2px);
+    opacity: 0.8;
+}
+
+.orb-one {
+    width: 440px;
+    height: 440px;
+    top: -160px;
+    inset-inline-end: -130px;
+    background: radial-gradient(
+        circle at 35% 35%,
+        #60a5fa,
+        #2563eb 45%,
+        transparent 70%
+    );
+}
+
+.orb-two {
+    width: 380px;
+    height: 380px;
+    inset-inline-start: -180px;
+    top: 20%;
+    background: radial-gradient(
+        circle,
+        #7c3aed55,
+        transparent 68%
+    );
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 760px) {
+    .auth-shell {
+        display: block;
+    }
+
+    .welcome-panel {
+        display: none;
+    }
+
+    .login-card {
+        padding: 48px 0;
+    }
+}

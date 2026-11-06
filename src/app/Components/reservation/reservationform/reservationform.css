@@ -1,0 +1,242 @@
+:host {
+  display: block;
+}
+
+.form-page {
+  padding: clamp(20px, 4vw, 46px);
+  min-height: calc(100vh - 76px);
+  background: #f7f9fc;
+  color: #172033;
+}
+
+.back-link {
+  display: inline-block;
+  color: #6177d8;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  color: #6b83df;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heading h1 {
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 850;
+  margin: 8px 0 4px;
+}
+
+.heading p {
+  color: #7d899e;
+}
+
+.form-card {
+  border-radius: 20px;
+  margin-top: 24px;
+}
+
+.form-card section {
+  padding: 4px 2px;
+}
+
+.form-card section + section {
+  border-top: 1px solid #edf0f5;
+  padding-top: 24px;
+}
+
+.form-card h2 {
+  font-size: 16px;
+  font-weight: 850;
+  margin-bottom: 18px;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.section-title span {
+  font-size: 11px;
+  color: #8994a7;
+}
+
+.room-counter {
+  white-space: nowrap;
+  background: #eef2ff;
+  color: #4a61c5;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.form-card label {
+  display: block;
+  color: #66738b;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.form-card label span {
+  color: #d75a6a;
+}
+
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border-color: #e1e7f0;
+  min-height: 42px;
+  font-size: 13px;
+}
+
+.form-card .card-body {
+  padding: 26px;
+}
+
+.form-card .card-footer {
+  padding: 18px 26px;
+  border-radius: 0 0 20px 20px;
+}
+
+.availability-section {
+  background: #fbfcff;
+  border-radius: 16px;
+}
+
+.selected-rooms {
+  display: grid;
+  gap: 12px;
+}
+
+.selected-room-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px;
+  border: 1px solid #e4e9f2;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.selected-room-main {
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.selected-room-main strong {
+  color: #27375c;
+}
+
+.selected-room-main span {
+  font-size: 12px;
+  color: #61708b;
+}
+
+.selected-room-main small {
+  font-size: 10px;
+  color: #98a2b3;
+}
+
+.selected-room-fields {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.selected-room-fields label {
+  margin: 0;
+  min-width: 76px;
+}
+
+.selected-room-fields .form-control {
+  min-height: 36px;
+  padding: 5px 8px;
+}
+
+.remove-button {
+  min-height: 36px;
+}
+
+.empty-selected {
+  padding: 28px;
+  text-align: center;
+  border: 1px dashed #ced7e8;
+  border-radius: 14px;
+  color: #8792a5;
+  background: #fbfcff;
+}
+
+.policy-summary {
+  padding: 16px !important;
+  background: #fafbff;
+  border-radius: 14px;
+}
+
+.policy-summary h2 {
+  margin-bottom: 12px;
+}
+
+.policy-summary span,
+.policy-summary strong {
+  display: block;
+}
+
+.policy-summary span {
+  font-size: 11px;
+  color: #7a879d;
+}
+
+.policy-summary strong {
+  margin-top: 5px;
+  color: #344aab;
+}
+
+@media (max-width: 800px) {
+  .selected-room-row {
+    display: grid;
+  }
+
+  .selected-room-fields {
+    align-items: stretch;
+  }
+
+  .selected-room-fields label {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 640px) {
+  .form-page {
+    padding: 18px 12px;
+  }
+
+  .form-card .card-body {
+    padding: 18px;
+  }
+
+  .section-title {
+    display: block;
+  }
+
+  .section-title span {
+    display: block;
+    margin-top: 8px;
+  }
+
+  .room-counter {
+    display: inline-block;
+    margin-top: 12px;
+  }
+}

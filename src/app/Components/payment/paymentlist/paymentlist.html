@@ -1,0 +1,129 @@
+<main class="page">
+  <a
+    [routerLink]="[
+      '/folios',
+      folioId
+    ]"[queryParams]="{
+      propertyId: propertyid()
+    }"
+  >
+    ← Folio
+  </a>
+
+  <div class="toolbar mt-3">
+    <h1>
+      مدفوعات Folio #{{ folioId }}
+    </h1>
+
+    <button
+      class="btn btn-primary"
+      type="button"
+      (click)="create()"
+    >
+      إضافة دفعة
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger">
+      {{ error() }}
+    </div>
+  }
+
+  <section class="card p-3 mb-3">
+    <div class="grid">
+      <strong>
+        الإجمالي:
+        {{
+          summary()?.total
+            | number:'1.2-2'
+        }}
+      </strong>
+
+      <strong>
+        المدفوع:
+        {{
+          summary()?.successfulPayments
+            | number:'1.2-2'
+        }}
+      </strong>
+
+      <strong>
+        المرتجعات:
+        {{
+          summary()?.refunds
+            | number:'1.2-2'
+        }}
+      </strong>
+
+      <strong>
+        الرصيد:
+        {{
+          summary()?.balance
+            | number:'1.2-2'
+        }}
+      </strong>
+    </div>
+  </section>
+
+  <section class="card p-3">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>المبلغ</th>
+          <th>طريقة الدفع</th>
+          <th>الحالة</th>
+          <th>التاريخ</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (
+          payment of items();
+          track payment.id
+        ) {
+          <tr>
+            <td>
+              {{
+                payment.amount
+                  | number:'1.2-2'
+              }}
+            </td>
+
+            <td>
+              {{ payment.method }}
+            </td>
+
+            <td>
+              {{ payment.status }}
+            </td>
+
+            <td>
+              {{
+                payment.paidAt
+                  | date:'short'
+              }}
+            </td>
+
+            <td>
+              <button
+                class="btn btn-sm btn-light"
+                type="button"
+                (click)="view(payment)"
+              >
+                تفاصيل
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5">
+              لا توجد مدفوعات
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</main>

@@ -1,0 +1,89 @@
+<main class="page" dir="rtl">
+  <a
+    class="back"
+    [routerLink]="['/properties', propertyId(), 'room-types']"
+  >
+    ← العودة إلى أنواع الغرف
+  </a>
+
+  @if (loading() && !type()) {
+    <section class="card state">
+      جارٍ تحميل نوع الغرفة...
+    </section>
+  } @else if (error() && !type()) {
+    <p class="alert error">
+      {{ error() }}
+    </p>
+  } @else if (type(); as item) {
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">
+            تفاصيل نوع الغرفة · #{{ item.id }}
+          </p>
+
+          <h1>{{ item.name }}</h1>
+
+          <p class="muted">
+            {{ item.description || 'لا يوجد وصف.' }}
+          </p>
+        </div>
+
+        <span class="status">
+          {{ item.isActive === false ? 'غير نشط' : 'نشط' }}
+        </span>
+      </div>
+
+      @if (error()) {
+        <p class="alert error">
+          {{ error() }}
+        </p>
+      }
+
+      @if (success()) {
+        <p class="alert success">
+          {{ success() }}
+        </p>
+      }
+
+      <dl class="detail-list">
+        <dt>الاسم</dt>
+        <dd>{{ item.name }}</dd>
+
+        <dt>الحد الأقصى للبالغين</dt>
+        <dd>{{ item.maxAdults }}</dd>
+
+        <dt>الحد الأقصى للأطفال</dt>
+        <dd>{{ item.maxChildren }}</dd>
+
+        <dt>السعر الأساسي</dt>
+        <dd>{{ item.basePrice | number: '1.0-2' }}</dd>
+
+        <dt>الوصف</dt>
+        <dd>{{ item.description || '—' }}</dd>
+
+        <dt>الإصدار</dt>
+        <dd>{{ item.rowVersion }}</dd>
+      </dl>
+
+      <div class="actions">
+        @if (permissions.canUpdateProperty()) {
+          <button
+            class="button primary"
+            (click)="edit()"
+          >
+            تعديل
+          </button>
+
+          <button
+            class="button danger"
+            [disabled]="action()"
+            (click)="deactivate()"
+          >
+            تعطيل
+          </button>
+        }
+      </div>
+    </section>
+  }
+</main>

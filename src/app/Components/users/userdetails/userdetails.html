@@ -1,0 +1,87 @@
+<main class="details" dir="rtl">
+  <a class="back" routerLink="/users" 
+    [queryParams]="{ propertyId: propertyId ()}"
+
+ >
+    ← العودة إلى المستخدمين
+  </a>
+
+  @if (loading()) {
+    <div class="state">
+      جارٍ تحميل البيانات...
+    </div>
+  } @else if (error()) {
+    <p class="error" role="alert">
+      {{ error() }}
+    </p>
+  } @else if (user(); as item) {
+    <section class="card">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">
+            USER DETAILS
+          </p>
+
+          <h1>
+            {{ item.fullName }}
+          </h1>
+
+          <p class="muted">
+            {{ item.userName }}
+          </p>
+        </div>
+
+        <span
+          class="status"
+          [class.inactive]="!item.isActive"
+        >
+          {{ item.isActive ? 'نشط' : 'غير نشط' }}
+        </span>
+      </div>
+
+      <dl>
+        <dt>معرف المستخدم</dt>
+        <dd>
+          {{ item.userId }}
+        </dd>
+
+        <dt>العنوان</dt>
+        <dd>
+          {{ item.address || '—' }}
+        </dd>
+
+        <dt>العقار</dt>
+        <dd>
+          {{ item.propertyName || (item.propertyId ?? 'عام') }}
+        </dd>
+
+        <dt>الأدوار</dt>
+        <dd>
+          {{
+            item.roles.length
+              ? item.roles.map(role => role.roleName).join('، ')
+              : '—'
+          }}
+        </dd>
+
+        <dt>تاريخ الإنشاء</dt>
+        <dd>
+          {{ item.createdAt | date: 'medium' }}
+        </dd>
+
+        <dt>آخر تحديث</dt>
+        <dd>
+          {{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}
+        </dd>
+      </dl>
+
+      <a
+        class="primary"
+        [routerLink]="['/users', item.userId, 'edit']"
+        [class.hidden]="!permissions.canEditUser()"
+      >
+        تعديل البيانات
+      </a>
+    </section>
+  }
+</main>

@@ -1,0 +1,205 @@
+<main class="settings-page" dir="rtl">
+
+  <a
+    class="back"
+    [routerLink]="['/properties', propertyId()]"
+  >
+    ← العودة إلى العقار
+  </a>
+
+  <section class="card">
+
+    <p class="eyebrow">
+      PROPERTY SETTINGS
+    </p>
+
+    <h1>
+      إعدادات العقار
+    </h1>
+
+    <p class="muted">
+      تعديل الإعدادات يستخدم row version لمنع الكتابة فوق تحديثات مستخدم آخر.
+    </p>
+
+    @if (loading()) {
+      <p class="state">
+        جارٍ تحميل الإعدادات...
+      </p>
+    } @else {
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+      >
+
+        <div class="grid">
+
+          <label>
+            العملة
+
+            <input
+              formControlName="defaultCurrency"
+            />
+
+            @if (
+              form.controls.defaultCurrency.invalid &&
+              form.controls.defaultCurrency.touched
+            ) {
+              <small>
+                العملة لا تتجاوز 10 أحرف.
+              </small>
+            }
+          </label>
+
+          <label>
+            Time Zone
+
+            <input
+              formControlName="timeZone"
+            />
+          </label>
+
+          <label>
+            وقت تسجيل الدخول
+
+            <input
+              type="time"
+              formControlName="checkInTime"
+            />
+          </label>
+
+          <label>
+            وقت تسجيل الخروج
+
+            <input
+              type="time"
+              formControlName="checkOutTime"
+            />
+          </label>
+
+          <label>
+            إغلاق يوم الفندق
+
+            <input
+              type="time"
+              formControlName="hotelDayClosingTime"
+            />
+          </label>
+
+          <label class="toggle">
+            <input
+              type="checkbox"
+              formControlName="allowEarlyCheckIn"
+            />
+
+            السماح بالدخول المبكر
+          </label>
+
+          <label class="toggle">
+            <input
+              type="checkbox"
+              formControlName="requireDepositForReservation"
+            />
+
+            طلب إيداع للحجز
+          </label>
+
+          <label class="toggle">
+            <input
+              type="checkbox"
+              formControlName="requireFullPaymentBeforeCheckOut"
+            />
+
+            الدفع الكامل قبل المغادرة
+          </label>
+
+          <label class="toggle">
+            <input
+              type="checkbox"
+              formControlName="allowOverpayment"
+            />
+
+            السماح بالدفع الزائد
+          </label>
+
+          <label class="toggle">
+            <input
+              type="checkbox"
+              formControlName="requireInspectionBeforeAvailable"
+            />
+
+            طلب فحص الغرفة
+          </label>
+
+          <label class="full">
+            سبب التعديل
+
+            <input
+              formControlName="reason"
+            />
+
+            @if (
+              form.controls.reason.invalid &&
+              form.controls.reason.touched
+            ) {
+              <small>
+                سبب التعديل مطلوب من حرفين إلى 500 حرف.
+              </small>
+            }
+          </label>
+
+        </div>
+
+        @if (error()) {
+          <p
+            class="error"
+            role="alert"
+          >
+            {{ error() }}
+
+            <button
+              type="button"
+              class="reload"
+              (click)="load()"
+            >
+              إعادة التحميل
+            </button>
+          </p>
+        }
+
+        @if (success()) {
+          <p
+            class="success"
+            role="status"
+          >
+            {{ success() }}
+          </p>
+        }
+
+        <div class="actions">
+
+          <button
+            class="primary"
+            type="submit"
+            [disabled]="saving()"
+            [class.hidden]="!permissions.canUpdateProperty()"
+          >
+            {{ saving() ? 'جارٍ الحفظ...' : 'حفظ الإعدادات' }}
+          </button>
+
+          <a
+            class="secondary"
+            [routerLink]="['/properties', propertyId()]"
+          >
+            إلغاء
+          </a>
+
+        </div>
+
+      </form>
+
+    }
+
+  </section>
+
+</main>

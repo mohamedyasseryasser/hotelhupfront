@@ -1,0 +1,3 @@
+:host { display: block; }
+dl dt { color: var(--bs-secondary-color); margin-bottom: .5rem; }
+dl dd { margin-bottom: .75rem; }

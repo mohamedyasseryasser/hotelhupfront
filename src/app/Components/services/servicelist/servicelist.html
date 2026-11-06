@@ -1,0 +1,151 @@
+<main class="page">
+  <div class="toolbar">
+    <div>
+      <h1>الخدمات</h1>
+
+      <p class="text-muted">
+        إدارة خدمات الفندق وأسعارها
+      </p>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      type="button"
+      (click)="create()"
+    >
+      إضافة خدمة
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger">
+      {{ error() }}
+    </div>
+  }
+
+  <section class="card p-3 shadow-sm">
+    <div class="row g-2 mb-3">
+      <div class="col-md-6">
+        <input
+          class="form-control"
+          placeholder="بحث بالاسم"
+          [ngModel]="search()"
+          (ngModelChange)="
+            search.set($event);
+            load()
+          "
+        />
+      </div>
+
+      <div class="col-md-3 form-check m-2">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          [ngModel]="includeInactive()"
+          (ngModelChange)="
+            includeInactive.set($event);
+            load()
+          "
+        />
+
+        <label>
+          عرض غير النشطة
+        </label>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>التصنيف</th>
+            <th>السعر</th>
+            <th>الضريبة</th>
+            <th>الحالة</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (
+            service of items();
+            track service.id
+          ) {
+            <tr>
+              <td>
+                {{ service.name }}
+              </td>
+
+              <td>
+                {{
+                  service.revenueCategory ||
+                    '—'
+                }}
+              </td>
+
+              <td>
+                {{
+                  service.price
+                    | number:'1.2-2'
+                }}
+              </td>
+
+              <td>
+                {{
+                  service.tax
+                    | number:'1.2-2'
+                }}
+              </td>
+
+              <td>
+                {{
+                  service.isActive
+                    ? 'نشطة'
+                    : 'غير نشطة'
+                }}
+              </td>
+
+              <td class="actions">
+                <button
+                  class="btn btn-sm btn-light"
+                  type="button"
+                  (click)="view(service)"
+                >
+                  تفاصيل
+                </button>
+
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  type="button"
+                  (click)="edit(service)"
+                >
+                  تعديل
+                </button>
+
+                @if (service.isActive) {
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    type="button"
+                    (click)="deactivate(service)"
+                  >
+                    تعطيل
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td
+                colspan="6"
+                class="text-center"
+              >
+                لا توجد خدمات
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

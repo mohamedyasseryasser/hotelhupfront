@@ -1,0 +1,86 @@
+
+<main class="page" dir="rtl">
+  <a class="back" [routerLink]="['/properties', propertyId(), 'rooms']">
+    ← العودة إلى الغرف
+  </a>
+
+  @if (loading() && !room()) {
+    <section class="card state">
+      جارٍ تحميل الغرفة...
+    </section>
+  } @else if (error() && !room()) {
+    <p class="alert error">
+      {{ error() }}
+    </p>
+  } @else if (room(); as item) {
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">
+            تفاصيل الغرفة · #{{ item.id }}
+          </p>
+
+          <h1>غرفة {{ item.roomNumber }}</h1>
+
+          <p class="muted">
+            {{ item.roomTypeName || ('نوع الغرفة ' + item.roomTypeId) }}
+          </p>
+        </div>
+
+        <span class="status">
+          {{ item.status }}
+        </span>
+      </div>
+
+      @if (error()) {
+        <p class="alert error">
+          {{ error() }}
+        </p>
+      }
+
+      @if (success()) {
+        <p class="alert success">
+          {{ success() }}
+        </p>
+      }
+
+      <dl class="detail-list">
+        <dt>رقم الغرفة</dt>
+        <dd>{{ item.roomNumber }}</dd>
+
+        <dt>نوع الغرفة</dt>
+        <dd>{{ item.roomTypeName || item.roomTypeId }}</dd>
+
+        <dt>السعر لكل ليلة</dt>
+        <dd>{{ item.pricePerNight | number: '1.0-2' }}</dd>
+
+        <dt>الحالة</dt>
+        <dd>{{ item.status }}</dd>
+
+        <dt>الإصدار</dt>
+        <dd>{{ item.rowVersion }}</dd>
+      </dl>
+
+      <div class="actions">
+        @if (permissions.canUpdateRoom()) {
+          <button
+            class="button primary"
+            (click)="edit()"
+          >
+            تعديل
+          </button>
+        }
+
+        @if (permissions.canChangeRoomStatus()) {
+          <button
+            class="button danger"
+            [disabled]="action()"
+            (click)="deactivate()"
+          >
+            تعطيل
+          </button>
+        }
+      </div>
+    </section>
+  }
+</main>

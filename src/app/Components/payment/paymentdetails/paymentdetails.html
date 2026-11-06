@@ -1,0 +1,103 @@
+<main class="page">
+  <a routerLink="/folios">
+    ← Folios
+  </a>
+
+  @if (error()) {
+    <div class="alert alert-danger mt-3">
+      {{ error() }}
+    </div>
+  }
+
+  @if (item(); as payment) {
+    <section class="card p-4 mt-3">
+      <h1>
+        Payment #{{ payment.id }}
+      </h1>
+
+      <div class="grid">
+        <strong>
+          Folio:
+          {{ payment.folioId }}
+        </strong>
+
+        <strong>
+          المبلغ:
+          {{
+            payment.amount
+              | number:'1.2-2'
+          }}
+        </strong>
+
+        <strong>
+          طريقة الدفع:
+          {{ payment.method }}
+        </strong>
+
+        <strong>
+          الحالة:
+          {{ payment.status }}
+        </strong>
+
+        <strong>
+          المبلغ المسترد:
+          {{
+            payment.refundedAmount
+              | number:'1.2-2'
+          }}
+        </strong>
+
+        <strong>
+          External ID:
+          {{
+            payment.externalId || '—'
+          }}
+        </strong>
+      </div>
+
+      <hr />
+
+      <h3>Refunds</h3>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>المبلغ</th>
+            <th>الحالة</th>
+            <th>السبب</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (
+            refund of payment.refunds;
+            track refund.id
+          ) {
+            <tr>
+              <td>
+                {{
+                  refund.amount
+                    | number:'1.2-2'
+                }}
+              </td>
+
+              <td>
+                {{ refund.status }}
+              </td>
+
+              <td>
+                {{ refund.reason || '—' }}
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3">
+                لا توجد Refunds
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</main>

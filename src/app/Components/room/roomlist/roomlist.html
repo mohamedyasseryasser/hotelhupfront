@@ -1,0 +1,173 @@
+<main class="page" dir="rtl">
+  <a class="back" [routerLink]="['/properties', propertyId()]">
+    ← العودة إلى العقار
+  </a>
+
+  <header class="heading">
+    <div>
+      <p class="eyebrow">ROOMS</p>
+      <h1>الغرف</h1>
+      <p class="muted">
+        إدارة غرف العقار وأسعارها وحالتها التشغيلية.
+      </p>
+    </div>
+
+    @if (permissions.canCreateRoom()) {
+      <button class="button primary" (click)="create()">
+        ＋ إضافة غرفة
+      </button>
+    }
+  </header>
+
+  @if (error()) {
+    <p class="alert error">
+      {{ error() }}
+    </p>
+  }
+
+  @if (success()) {
+    <p class="alert success">
+      {{ success() }}
+    </p>
+  }
+
+  <section class="panel">
+    <div class="section-heading">
+      <form (ngSubmit)="submitSearch()">
+        <input
+          name="search"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+          placeholder="بحث برقم الغرفة أو النوع"
+        />
+
+        <button class="button secondary" type="submit">
+          بحث
+        </button>
+
+        <label>
+          <input
+            type="checkbox"
+            [checked]="includeInactive()"
+            (change)="includeInactive.set($any($event.target).checked); load()"
+          />
+          عرض غير النشطة
+        </label>
+      </form>
+
+      <button
+        class="button secondary"
+        (click)="load()"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'جارٍ التحديث...' : 'تحديث' }}
+      </button>
+    </div>
+
+    @if (loading() && rooms().length === 0) {
+      <div class="empty">
+        جارٍ تحميل الغرف...
+      </div>
+    } @else if (rooms().length === 0) {
+      <div class="empty">
+        <strong>لا توجد غرف</strong>
+        <span>أضف غرفة لهذا العقار للبدء.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>رقم الغرفة</th>
+              <th>النوع</th>
+              <th>السعر/ليلة</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (room of rooms(); track room.id) {
+              <tr>
+                <td>
+                  <strong>{{ room.roomNumber }}</strong>
+                  <small>#{{ room.id }}</small>
+                </td>
+
+                <td>
+                  {{ room.roomTypeName || room.roomTypeId || '—' }}
+                </td>
+
+                <td>
+                  {{ room.pricePerNight | number: '1.0-2' }}
+                </td>
+
+                <td>
+                  <span
+                    class="status"
+                    [class.inactive]="!isActive(room)"
+                  >
+                    {{ statusLabel(room.status) }}
+                  </span>
+                </td>
+
+                <td class="row-actions">
+                  <button
+                    class="text-button"
+                    (click)="view(room)"
+                  >
+                    عرض
+                  </button>
+
+                  @if (permissions.canUpdateRoom()) {
+                    <button
+                      class="text-button"
+                      (click)="edit(room)"
+                    >
+                      تعديل
+                    </button>
+                  }
+
+                  @if (
+                    isActive(room) &&
+                    permissions.canChangeRoomStatus()
+                  ) {
+                    <button
+                      class="text-button danger-text"
+                      [disabled]="actionId() === room.id"
+                      (click)="deactivate(room)"
+                    >
+                      تعطيل
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <div class="button-row">
+      <button
+        class="button secondary"
+        [disabled]="page() <= 1"
+        (click)="next(-1)"
+      >
+        السابق
+      </button>
+
+      <span class="muted">
+        صفحة {{ page() }} من {{ totalPages() }}
+      </span>
+
+      <button
+        class="button secondary"
+        [disabled]="page() >= totalPages()"
+        (click)="next(1)"
+      >
+        التالي
+      </button>
+    </div>
+  </section>
+</main>

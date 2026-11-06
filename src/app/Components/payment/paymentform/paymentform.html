@@ -1,0 +1,110 @@
+<main class="page">
+  <a
+    [routerLink]="[
+      '/folios',
+      folioId,
+      'payments'
+    ]"[queryParams]="{
+      propertyId: propertyid()
+    }"
+  >
+    ← المدفوعات
+  </a>
+
+  <section class="card p-4 mt-3">
+    <h1>تسجيل دفعة</h1>
+
+    @if (error()) {
+      <div class="alert alert-danger">
+        {{ error() }}
+      </div>
+    }
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+    >
+      <div class="grid">
+        <label>
+          المبلغ
+
+          <input
+            class="form-control"
+            type="number"
+            min="0.01"
+            formControlName="amount"
+          />
+        </label>
+
+        <label>
+          طريقة الدفع
+
+          <select
+            class="form-select"
+            formControlName="method"
+          >
+            <option
+              [ngValue]="method.Cash"
+            >
+              نقدي
+            </option>
+
+            <option
+              [ngValue]="method.CreditCard"
+            >
+              بطاقة ائتمان
+            </option>
+
+            <option
+              [ngValue]="method.DebitCard"
+            >
+              بطاقة خصم
+            </option>
+
+            <option
+              [ngValue]="method.BankTransfer"
+            >
+              تحويل بنكي
+            </option>
+
+            <option
+              [ngValue]="method.Gateway"
+            >
+              بوابة دفع
+            </option>
+          </select>
+        </label>
+
+        <label>
+          External ID
+
+          <input
+            class="form-control"
+            formControlName="externalId"
+          />
+        </label>
+
+        <label>
+          Idempotency Key
+
+          <input
+            class="form-control"
+            formControlName="idempotencyKey"
+          />
+        </label>
+      </div>
+
+      <button
+        class="btn btn-primary mt-3"
+        type="submit"
+        [disabled]="saving()"
+      >
+        {{
+          saving()
+            ? 'جارٍ الحفظ...'
+            : 'حفظ الدفعة'
+        }}
+      </button>
+    </form>
+  </section>
+</main>

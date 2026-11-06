@@ -1,0 +1,149 @@
+
+<main class="tax-page" dir="rtl">
+  <a class="back-link" [routerLink]="['/properties', propertyId()]">
+    ← العودة إلى العقار
+  </a>
+
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">PROPERTY TAXES</p>
+      <h1>ضرائب العقار</h1>
+      <p class="muted">
+        إدارة الضرائب، النسب والمبالغ الثابتة، وفترات سريانها.
+      </p>
+    </div>
+
+    <div class="heading-actions">
+      <select
+        [ngModel]="currenttaxes()"
+        (ngModelChange)="currenttaxes.set($event); loadTaxes()"
+      >
+        <option [ngValue]="false">الضرائب الحالية</option>
+        <option [ngValue]="true">الضرائب كلها</option>
+      </select>
+
+      @if (permissions.canUpdateProperty()) {
+        <button
+          class="button primary"
+          type="button"
+          (click)="createTax()"
+        >
+          ＋ إضافة ضريبة
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (error()) {
+    <p class="alert error" role="alert">{{ error() }}</p>
+  }
+
+  @if (success()) {
+    <p class="alert success" role="status">{{ success() }}</p>
+  }
+
+  <section class="panel list-panel">
+    <div class="section-heading">
+      <div>
+        <h2>قائمة الضرائب</h2>
+        <p class="muted">{{ taxes().length }} ضريبة</p>
+      </div>
+
+      <button
+        class="button secondary compact"
+        type="button"
+        (click)="loadTaxes()"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'جارٍ التحديث...' : 'تحديث' }}
+      </button>
+    </div>
+
+    @if (loading() && taxes().length === 0) {
+      <div class="empty-state">جارٍ تحميل الضرائب...</div>
+    } @else if (taxes().length === 0) {
+      <div class="empty-state">
+        <strong>لا توجد ضرائب مضافة</strong>
+        <span>أضف ضريبة لهذا العقار للبدء.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>الضريبة</th>
+              <th>القيمة</th>
+              <th>السريان</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (tax of taxes(); track tax.id) {
+              <tr>
+                <td>
+                  <strong>{{ tax.name }}</strong>
+                  <small class="code">{{ tax.code }}</small>
+                </td>
+
+                <td>
+                  {{ tax.rate | number:'1.0-2' }}{{ tax.type === taxType.Percentage ? '%' : '' }}
+                  <small>
+                    {{ taxTypeLabel(tax.type) }} ·
+                    {{ tax.isInclusive ? 'شاملة' : 'غير شاملة' }}
+                  </small>
+                </td>
+
+                <td class="date-cell">
+                  <span>{{ tax.validFrom | date:'mediumDate' }}</span>
+                  <small>
+                    {{ tax.validTo ? (tax.validTo | date:'mediumDate') : 'بلا تاريخ انتهاء' }}
+                  </small>
+                </td>
+
+                <td>
+                  <span class="status" [class.inactive]="!tax.isActive">
+                    {{ tax.isActive ? 'نشطة' : 'غير نشطة' }}
+                  </span>
+                </td>
+
+                <td class="row-actions">
+                  <button type="button" class="text-button" (click)="viewTax(tax)">
+                    عرض
+                  </button>
+
+                  @if (permissions.canUpdateProperty()) {
+                    <button type="button" class="text-button" (click)="editTax(tax)">
+                      تعديل
+                    </button>
+
+                    @if (tax.isActive) {
+                      <button
+                        type="button"
+                        class="text-button danger-text"
+                        [disabled]="actionId() === tax.id"
+                        (click)="deactivateTax(tax)"
+                      >
+                        تعطيل
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        class="text-button activate-text"
+                        [disabled]="actionId() === tax.id"
+                        (click)="activateTax(tax)"
+                      >
+                        تفعيل
+                      </button>
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>

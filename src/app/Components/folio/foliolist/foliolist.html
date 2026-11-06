@@ -1,0 +1,23 @@
+<main class="page">
+
+  <section class="card p-4">
+
+    <h1>Folio</h1>
+
+    <p class="text-muted">
+      أدخل رقم Folio لعرض التفاصيل والحركات المالية.
+    </p>
+    @if(error()){
+    <div>  {{error()}}</div>
+    }
+    @if(!error()){
+    <button
+      class="btn btn-primary"
+      (click)="open()"
+    >
+      فتح Folio
+    </button>
+  }
+  </section>
+
+</main>

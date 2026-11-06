@@ -1,0 +1,260 @@
+
+<main class="policy-page" dir="rtl">
+  <a
+    class="back-link"
+    [routerLink]="['/properties', propertyId(), 'cancellation-policies']"
+  >
+    ← العودة إلى السياسات
+  </a>
+
+  <section class="panel form-panel">
+    <p class="eyebrow">
+      {{ policy() ? 'إصدار جديد' : 'سياسة إلغاء جديدة' }}
+    </p>
+
+    <h1>
+      {{ policy() ? 'إنشاء إصدار جديد' : 'إضافة سياسة إلغاء' }}
+    </h1>
+
+    <p class="muted">
+      {{
+        policy()
+          ? 'سيتم الاحتفاظ بالإصدارات السابقة وإنشاء إصدار جديد يبدأ في التاريخ المحدد.'
+          : 'حدد قواعد الإلغاء والرسوم وفترة سريان السياسة.'
+      }}
+    </p>
+
+    @if (loading()) {
+      <div class="state">
+        جارٍ تحميل السياسة...
+      </div>
+    } @else {
+      @if (error()) {
+        <p class="alert error" role="alert">
+          {{ error() }}
+        </p>
+      }
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="savePolicy()"
+        novalidate
+      >
+        <div class="form-grid">
+          <label>
+            اسم السياسة <span class="required">*</span>
+
+            <input
+              formControlName="name"
+              maxlength="150"
+              placeholder="مثال: إلغاء مرن"
+              [readonly]="policy() !== null"
+            />
+
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <small class="field-error">
+                الاسم مطلوب من حرفين إلى 150 حرفًا.
+              </small>
+            }
+          </label>
+
+          <label>
+            الوصف
+
+            <input
+              formControlName="description"
+              maxlength="1000"
+              placeholder="وصف مختصر للسياسة"
+              [readonly]="policy() !== null"
+            />
+
+            @if (
+              form.controls.description.touched &&
+              form.controls.description.invalid
+            ) {
+              <small class="field-error">
+                الوصف لا يتجاوز 1000 حرف.
+              </small>
+            }
+          </label>
+
+          <label>
+            بداية السريان <span class="required">*</span>
+
+            <input
+              type="datetime-local"
+              formControlName="validFrom"
+            />
+          </label>
+
+          <label>
+            نهاية السريان
+
+            <input
+              type="datetime-local"
+              formControlName="validTo"
+            />
+
+            <small>
+              اتركها فارغة إذا كانت السياسة مستمرة.
+            </small>
+          </label>
+
+          <label>
+            ساعات الإلغاء المجاني <span class="required">*</span>
+
+            <input
+              type="number"
+              formControlName="freeCancellationHours"
+              min="0"
+              step="1"
+            />
+
+            @if (
+              form.controls.freeCancellationHours.touched &&
+              form.controls.freeCancellationHours.invalid
+            ) {
+              <small class="field-error">
+                أدخل عدد ساعات صحيحًا لا يقل عن صفر.
+              </small>
+            }
+          </label>
+
+          <label>
+            مهلة الإلغاء (ساعات) <span class="required">*</span>
+
+            <input
+              type="number"
+              formControlName="cutoffHours"
+              min="0"
+              step="1"
+            />
+
+            @if (
+              form.controls.cutoffHours.touched &&
+              form.controls.cutoffHours.invalid
+            ) {
+              <small class="field-error">
+                أدخل عدد ساعات صحيحًا لا يقل عن صفر.
+              </small>
+            }
+          </label>
+
+          <label>
+            رسوم الإلغاء (%) <span class="required">*</span>
+
+            <input
+              type="number"
+              formControlName="cancellationFeePercentage"
+              min="0"
+              max="100"
+              step="0.01"
+            />
+
+            @if (
+              form.controls.cancellationFeePercentage.touched &&
+              form.controls.cancellationFeePercentage.invalid
+            ) {
+              <small class="field-error">
+                النسبة من 0 إلى 100.
+              </small>
+            }
+          </label>
+
+          <label>
+            رسوم ثابتة <span class="required">*</span>
+
+            <input
+              type="number"
+              formControlName="fixedCancellationFee"
+              min="0"
+              step="0.01"
+            />
+
+            @if (
+              form.controls.fixedCancellationFee.touched &&
+              form.controls.fixedCancellationFee.invalid
+            ) {
+              <small class="field-error">
+                الرسوم الثابتة لا تقل عن صفر.
+              </small>
+            }
+          </label>
+
+          <label class="checkbox-field full-width">
+            <input
+              type="checkbox"
+              formControlName="isNonRefundable"
+            />
+            الحجز غير قابل للاسترداد
+          </label>
+
+          <label class="full-width">
+            قواعد السياسة (JSON) <span class="required">*</span>
+
+            <textarea
+              formControlName="rules"
+              rows="6"
+              dir="ltr"
+              spellcheck="false"
+              placeholder="مثال: كائن JSON يحتوي على قواعد السياسة"
+            ></textarea>
+
+            <small>
+              يجب إدخال JSON صحيح؛ اترك القيمة الافتراضية
+              إذا لم تكن هناك قواعد إضافية.
+            </small>
+          </label>
+
+          @if (policy()) {
+            <label class="full-width">
+              سبب إنشاء الإصدار الجديد
+              <span class="required">*</span>
+
+              <textarea
+                formControlName="reason"
+                rows="3"
+                maxlength="500"
+                placeholder="سبب تعديل السياسة"
+              ></textarea>
+
+              @if (
+                form.controls.reason.touched &&
+                form.controls.reason.invalid
+              ) {
+                <small class="field-error">
+                  السبب مطلوب من حرفين إلى 500 حرف.
+                </small>
+              }
+            </label>
+          }
+        </div>
+
+        <div class="button-row">
+          @if (permissions.canUpdateProperty()) {
+            <button
+              class="button primary"
+              type="submit"
+              [disabled]="saving()"
+            >
+              {{
+                saving()
+                  ? 'جارٍ الحفظ...'
+                  : policy()
+                    ? 'إنشاء الإصدار'
+                    : 'إنشاء السياسة'
+              }}
+            </button>
+          }
+
+          <a
+            class="button secondary"
+            [routerLink]="['/properties', propertyId(), 'cancellation-policies']"
+          >
+            إلغاء
+          </a>
+        </div>
+      </form>
+    }
+  </section>
+</main>

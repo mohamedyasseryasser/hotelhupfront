@@ -1,0 +1,262 @@
+<main class="page">
+  <a
+    [routerLink]="[
+      '/reservations',
+      reservationId()
+    ]"
+    [queryParams]="{
+      propertyId: propertyId()
+    }"
+  >
+    ← العودة إلى الحجز
+  </a>
+<a
+  [routerLink]="[
+    '/folios',
+    id(),
+    'payments'
+  ]"
+   [queryParams]="{
+      propertyId: propertyId()
+    }"
+>
+  المدفوعات
+</a>
+  @if (loading()) {
+    <div class="alert alert-info mt-3">
+      جارٍ تحميل بيانات Folio...
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger mt-3">
+      {{ error() }}
+    </div>
+  }
+
+  @if (folio(); as f) {
+    <div class="toolbar mt-3">
+      <div>
+        <h1>
+          Folio #{{ f.id }}
+        </h1>
+
+        <p class="folio-status">
+          Reservation #{{ f.reservationId }}
+
+          <span
+            class="status-badge"
+            [class.status-open]="
+              f.status === status.Open
+            "
+            [class.status-closed]="
+              f.status === status.Closed
+            "
+          >
+            @if (f.status === status.Open) {
+              مفتوح
+            } @else {
+              مغلق
+            }
+          </span>
+        </p>
+      </div>
+
+      <div class="actions">
+        @if (f.status === status.Open) {
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="!canEdit()"
+            (click)="add()"
+          >
+            @if (saving()) {
+              جاري التنفيذ...
+            } @else {
+              إضافة بند
+            }
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            [disabled]="!canEdit()"
+            (click)="close()"
+          >
+            @if (saving()) {
+              جاري الإغلاق...
+            } @else {
+              إغلاق Folio
+            }
+          </button>
+        }
+
+        @if (f.status === status.Closed) {
+          <button
+            type="button"
+            class="btn btn-outline-success"
+            [disabled]="
+              saving() ||
+              loading()
+            "
+            (click)="reopen()"
+          >
+            @if (saving()) {
+              جاري إعادة الفتح...
+            } @else {
+              إعادة فتح Folio
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    <section class="card p-3 mb-3">
+      <div class="grid">
+        <strong>
+          الإجمالي:
+          {{ f.total | number:'1.2-2' }}
+        </strong>
+
+        <strong>
+          الرصيد:
+          {{ f.balance | number:'1.2-2' }}
+        </strong>
+
+        <strong>
+          العملة:
+          {{ f.currency }}
+        </strong>
+
+        <strong>
+          المدفوعات:
+          {{
+            summary()?.payments
+              | number:'1.2-2'
+          }}
+        </strong>
+
+        <strong>
+          Credit balance:
+          {{
+            f.creditBalance
+              | number:'1.2-2'
+          }}
+        </strong>
+      </div>
+    </section>
+
+    <section class="card p-3">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>الوصف</th>
+              <th>النوع</th>
+              <th>المصدر</th>
+              <th>المبلغ</th>
+              <th>الضريبة</th>
+              <th>الحالة</th>
+              <th>الإجراء</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              item of f.items;
+              track item.id
+            ) {
+              <tr>
+                <td>
+                  {{
+                    item.description ||
+                    item.serviceName ||
+                    '—'
+                  }}
+                </td>
+
+                <td>
+                  {{ item.type }}
+                </td>
+
+                <td>
+                  {{ item.source }}
+                </td>
+
+                <td>
+                  {{
+                    item.amount
+                      | number:'1.2-2'
+                  }}
+                </td>
+
+                <td>
+                  {{
+                    item.tax
+                      | number:'1.2-2'
+                  }}
+                </td>
+
+                <td>
+                  @if (
+                    item.status ===
+                    itemStatus.Posted
+                  ) {
+                    <span class="text-success">
+                      مرحّل
+                    </span>
+                  } @else if (
+                    item.status ===
+                    itemStatus.Voided
+                  ) {
+                    <span class="text-danger">
+                      ملغى
+                    </span>
+                  } @else {
+                    <span class="text-muted">
+                      معكوس
+                    </span>
+                  }
+                </td>
+
+                <td>
+                  @if (
+                    f.status === status.Open &&
+                    item.status ===
+                      itemStatus.Posted
+                  ) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      [disabled]="!canEdit()"
+                      (click)="void(item)"
+                    >
+                      @if (saving()) {
+                        جاري التنفيذ...
+                      } @else {
+                        Void
+                      }
+                    </button>
+                  } @else {
+                    <span class="text-muted">
+                      —
+                    </span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td
+                  colspan="7"
+                  class="text-center"
+                >
+                  لا توجد بنود في هذا الـ Folio.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</main>

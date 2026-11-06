@@ -1,0 +1,269 @@
+<main class="page" dir="rtl">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">
+        HOTELHUP PMS / USERS
+      </p>
+
+      <h1>
+        إدارة المستخدمين
+      </h1>
+
+      <p class="muted">
+        المستخدمون ضمن نطاق الصلاحية الخاص بحسابك.
+      </p>
+    </div>
+
+    <a
+      class="primary"
+      routerLink="/users/create"
+      (click)="goToCreate()"
+   [class.hidden]="!permissions.canCreateUser()"  
+    >
+      + مستخدم جديد
+    </a>
+  </header>
+
+  <section
+    class="filters card"
+    [formGroup]="filters"
+  >
+    <div class="filter-grid">
+      <label>
+        اسم المستخدم
+        <input
+          formControlName="userName"
+          placeholder="بحث بالاسم"
+        />
+      </label>
+
+      <label>
+        الاسم الكامل
+        <input
+          formControlName="fullName"
+          placeholder="بحث بالاسم الكامل"
+        />
+      </label>
+
+      <label>
+        الحالة
+        <select formControlName="isActive">
+          <option value="all">الكل</option>
+          <option value="active">نشط</option>
+          <option value="inactive">غير نشط</option>
+        </select>
+      </label>
+
+     
+
+      <label>
+        Role ID
+        <input
+          formControlName="roleId"
+          placeholder="اختياري"
+        />
+      </label>
+
+      <label>
+        من تاريخ
+        <input
+          formControlName="createdFrom"
+          type="date"
+        />
+      </label>
+
+      <label>
+        إلى تاريخ
+        <input
+          formControlName="createdTo"
+          type="date"
+        />
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        class="primary"
+        type="button"
+        (click)="loadUsers()"
+      >
+        بحث
+      </button>
+
+      <button
+        class="secondary"
+        type="button"
+        (click)="resetFilters()"
+      >
+        مسح
+      </button>
+    </div>
+  </section>
+
+  @if (notice()) {
+    <p
+      class="notice"
+      role="status"
+    >
+      {{ notice() }}
+    </p>
+  }
+
+  @if (error()) {
+    <p
+      class="error"
+      role="alert"
+    >
+      {{ error() }}
+    </p>
+  }
+
+  <section
+    class="card table-card"
+    aria-live="polite"
+  >
+    @if (loading()) {
+      <div class="state">
+        جارٍ تحميل المستخدمين...
+      </div>
+    } @else if (page().items.length === 0) {
+      <div class="state">
+        <strong>
+          لا يوجد مستخدمون
+        </strong>
+
+        <span>
+          لم يتم العثور على نتائج مطابقة للفلاتر الحالية.
+        </span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>المستخدم</th>
+              <th>الاسم الكامل</th>
+              <th>العقار</th>
+              <th>الأدوار</th>
+              <th>الحالة</th>
+              <th>تاريخ الإنشاء</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (user of page().items; track user.userId) {
+              <tr>
+                <td>
+                  <a
+                    [routerLink]="['/users', user.userId]"
+                                         [queryParams]="{ propertyId: user.propertyId }"
+
+                    class="user-link"
+                  >
+                    {{ user.userName }}
+                  </a>
+
+                  <small>
+                    {{ user.userId }}
+                  </small>
+                </td>
+
+                <td>
+                  {{ user.fullName }}
+                </td>
+
+                <td>
+                  {{ user.propertyName || (user.propertyId ?? 'عام') }}
+                </td>
+
+                <td>
+                  {{
+                    user.roles.length
+                      ? user.roles.map(role => role.roleName).join('، ')
+                      : '—'
+                  }}
+                </td>
+
+                <td>
+                  <span
+                    class="status"
+                    [class.inactive]="!user.isActive"
+                  >
+                    {{ user.isActive ? 'نشط' : 'غير نشط' }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ user.createdAt | date: 'mediumDate' }}
+                </td>
+
+                <td class="actions">
+                  <a [routerLink]="['/users', user.userId]"
+                     [queryParams]="{ propertyId: user.propertyId }"
+                  >
+                    عرض
+                  </a>
+
+                  <a
+                    [routerLink]="['/users', user.userId, 'edit']"
+                    [class.hidden]="!permissions.canEditUser()"
+                    [queryParams]="{ propertyId: user.propertyId }"
+
+                  >
+                    تعديل
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="confirmStatusChange(user)"
+                    [disabled]="
+                      actionId() === user.userId ||
+                      (
+                        user.isActive
+                        ? !permissions.canDeactivateUser()
+                         : !permissions.canActivateUser()
+                      )
+                    "
+                  >
+                    {{
+                      actionId() === user.userId
+                        ? '...'
+                        : (user.isActive ? 'تعطيل' : 'تفعيل')
+                    }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="pager">
+        <span>
+          {{ page().totalCount }} مستخدم · صفحة
+          {{ page().pageNumber }} من
+          {{ page().totalPages }}
+        </span>
+
+        <div>
+          <button
+            type="button"
+            [disabled]="page().pageNumber <= 1 || loading()"
+            (click)="loadUsers(page().pageNumber - 1)"
+          >
+            السابق
+          </button>
+
+          <button
+            type="button"
+            [disabled]="page().pageNumber >= page().totalPages || loading()"
+            (click)="loadUsers(page().pageNumber + 1)"
+          >
+            التالي
+          </button>
+        </div>
+      </footer>
+    }
+  </section>
+</main>

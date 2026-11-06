@@ -1,0 +1,266 @@
+
+<main class="container-fluid py-4" dir="rtl">
+
+  <a
+    class="btn btn-link px-0 mb-3"
+    [routerLink]="['/properties', propertyId()]"
+  >
+    ← العودة إلى العقار
+  </a>
+
+  <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+    <div>
+      <span class="text-primary small fw-semibold">
+        GUESTS
+      </span>
+
+      <h1 class="h3 mb-1">
+        الضيوف
+      </h1>
+
+      <p class="text-body-secondary mb-0">
+        إدارة بيانات ضيوف العقار وسجل حجوزاتهم.
+      </p>
+    </div>
+
+    @if (permissions.canCreateGuest()) {
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="create()"
+      >
+        ＋ إضافة ضيف
+      </button>
+    }
+
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-danger">
+      {{ error() }}
+    </div>
+  }
+
+  <section class="card border-0 shadow-sm">
+
+    <div class="card-body border-bottom">
+
+      <form
+        class="row g-2 align-items-end"
+        (ngSubmit)="submitSearch()"
+      >
+
+        <div class="col-md-5">
+
+          <label class="form-label">
+            بحث
+          </label>
+
+          <input
+            class="form-control"
+            name="search"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            placeholder="الاسم أو الهاتف أو البريد"
+          />
+
+        </div>
+
+        <div class="col-md-3">
+
+          <label class="form-label">
+            الحالة
+          </label>
+
+          <select
+            class="form-select"
+            name="status"
+            [ngModel]="isActive() === undefined ? 'all' : isActive() ? 'active' : 'inactive'"
+            (ngModelChange)="isActive.set($event === 'all' ? undefined : $event === 'active')"
+          >
+            <option value="active">
+              النشطون
+            </option>
+
+            <option value="inactive">
+              غير النشطين
+            </option>
+
+            <option value="all">
+              الكل
+            </option>
+          </select>
+
+        </div>
+
+        <div class="col-auto">
+          <button
+            class="btn btn-outline-primary"
+            type="submit"
+          >
+            بحث
+          </button>
+        </div>
+
+        <div class="col-auto">
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            (click)="load()"
+            [disabled]="loading()"
+          >
+            تحديث
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    @if (loading() && guests().length === 0) {
+
+      <div class="card-body text-center text-body-secondary py-5">
+        جارٍ تحميل الضيوف...
+      </div>
+
+    } @else if (guests().length === 0) {
+
+      <div class="card-body text-center py-5">
+
+        <strong>
+          لا يوجد ضيوف
+        </strong>
+
+        <p class="text-body-secondary mb-0">
+          أضف ضيفًا للبدء.
+        </p>
+
+      </div>
+
+    } @else {
+
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle mb-0">
+
+          <thead class="table-light">
+            <tr>
+              <th>الاسم</th>
+              <th>الهاتف</th>
+              <th>البريد</th>
+              <th>الحجوزات</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (guest of guests(); track guest.id) {
+
+              <tr>
+
+                <td>
+                  <strong>
+                    {{ guest.fullName }}
+                  </strong>
+
+                  <small class="d-block text-body-secondary">
+                    #{{ guest.id }}
+                  </small>
+                </td>
+
+                <td>
+                  {{ guest.phone || '—' }}
+                </td>
+
+                <td>
+                  {{ guest.email || '—' }}
+                </td>
+
+                <td>
+                  {{ guest.reservationCount }}
+                </td>
+
+                <td>
+                  <span
+                    class="badge"
+                    [class.text-bg-success]="guest.isActive"
+                    [class.text-bg-secondary]="!guest.isActive"
+                  >
+                    {{ guest.isActive ? 'نشط' : 'غير نشط' }}
+                  </span>
+                </td>
+
+                <td class="text-nowrap">
+
+                  <button
+                    class="btn btn-sm btn-outline-primary me-1"
+                    type="button"
+                    (click)="view(guest)"
+                  >
+                    عرض
+                  </button>
+
+                  @if (permissions.canUpdateGuest()) {
+                    <button
+                      class="btn btn-sm btn-outline-secondary"
+                      type="button"
+                      (click)="edit(guest)"
+                    >
+                      تعديل
+                    </button>
+                  }
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center p-3">
+
+        <span class="text-body-secondary">
+          إجمالي النتائج: {{ totalCount() }}
+        </span>
+
+        <div class="btn-group">
+
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            [disabled]="page() <= 1"
+            (click)="load(page() - 1)"
+          >
+            السابق
+          </button>
+
+          <span class="btn btn-outline-secondary disabled">
+            {{ page() }} / {{ totalPages() }}
+          </span>
+
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            [disabled]="page() >= totalPages()"
+            (click)="load(page() + 1)"
+          >
+            التالي
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+  </section>
+
+</main>

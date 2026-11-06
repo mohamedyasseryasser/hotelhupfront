@@ -1,0 +1,120 @@
+<main class="policy-page" dir="rtl">
+  <a class="back-link" [routerLink]="['/properties', propertyId()]">← العودة إلى العقار</a>
+
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">إدارة العقار</p>
+      <h1>سياسات الإيداع</h1>
+      <p class="muted">إدارة مبالغ ونسب الإيداع وفترات سريانها للعقار.</p>
+    </div>
+    @if (permissions.canUpdateProperty()) {
+      <button class="button primary" type="button" (click)="createPolicy()">＋ إضافة سياسة</button>
+    }
+  </header>
+
+  @if (error()) {
+    <p class="alert error" role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p class="alert success" role="status">{{ success() }}</p>
+  }
+
+  <section class="panel">
+    <div class="section-heading">
+      <div>
+        <h2>السياسات</h2>
+        <p class="muted">{{ policies().length }} سياسة</p>
+      </div>
+      <button
+        class="button secondary compact"
+        type="button"
+        (click)="loadPolicies()"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'جارٍ التحديث...' : 'تحديث' }}
+      </button>
+    </div>
+
+    @if (loading() && policies().length === 0) {
+      <div class="empty-state">جارٍ تحميل سياسات الإيداع...</div>
+    } @else if (policies().length === 0) {
+      <div class="empty-state">
+        <strong>لا توجد سياسات إيداع</strong>
+        <span>أنشئ سياسة لتحديد نوع الإيداع وقيمته وفترة سريانه.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>السياسة</th>
+              <th>الإصدار الحالي</th>
+              <th>النوع</th>
+              <th>القيمة</th>
+              <th>فترة السريان</th>
+              <th>الحالة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (policy of policies(); track policy.id) {
+              @if (currentVersion(policy); as version) {
+                <tr>
+                  <td>
+                    <strong>{{ version.name }}</strong
+                    ><small>رقم السياسة: {{ policy.id }}</small>
+                  </td>
+                  <td>الإصدار {{ policy.currentVersion }}</td>
+                  <td>{{ depositTypeLabel(version.type) }}</td>
+                  <td>
+                    <strong>{{ amountLabel(version) }}</strong>
+                  </td>
+                  <td class="date-cell">
+                    {{ version.validFrom | date: 'mediumDate' }}
+                    <small>{{
+                      version.validTo ? (version.validTo | date: 'mediumDate') : 'مفتوح'
+                    }}</small>
+                  </td>
+                  <td>
+                    <span class="status" [class.inactive]="!policy.isActive">
+                      {{ policy.isActive ? 'نشطة' : 'غير نشطة' }}
+                    </span>
+                  </td>
+                  <td class="row-actions">
+                    <button class="text-button" type="button" (click)="viewPolicy(policy)">
+                      عرض
+                    </button>
+                    @if (permissions.canUpdateProperty()) {
+                      <button class="text-button" type="button" (click)="editPolicy(policy)">
+                        إصدار جديد
+                      </button>
+                      @if (policy.isActive) {
+                        <button
+                          class="text-button danger-text"
+                          type="button"
+                          [disabled]="actionId() === policy.id"
+                          (click)="deactivatePolicy(policy)"
+                        >
+                          تعطيل
+                        </button>
+                      } @else {
+                        <button
+                          class="text-button activate-text"
+                          type="button"
+                          [disabled]="actionId() === policy.id"
+                          (click)="activatePolicy(policy)"
+                        >
+                          تفعيل
+                        </button>
+                      }
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>

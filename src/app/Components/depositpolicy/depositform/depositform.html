@@ -1,0 +1,204 @@
+
+<main class="policy-page" dir="rtl">
+  <a
+    class="back-link"
+    [routerLink]="['/properties', propertyId(), 'deposit-policies']"
+  >
+    ← العودة إلى السياسات
+  </a>
+
+  <section class="panel form-panel">
+    <p class="eyebrow">
+      {{ policy() ? 'إصدار جديد' : 'سياسة إيداع جديدة' }}
+    </p>
+
+    <h1>
+      {{ policy() ? 'إنشاء إصدار جديد' : 'إضافة سياسة إيداع' }}
+    </h1>
+
+    <p class="muted">
+      {{
+        policy()
+          ? 'سيتم الاحتفاظ بالإصدارات السابقة وإضافة إصدار جديد بالتواريخ والقيم المحددة.'
+          : 'حدد نوع الإيداع وقيمته وفترة سريان السياسة.'
+      }}
+    </p>
+
+    @if (loading()) {
+      <div class="state">
+        جارٍ تحميل السياسة...
+      </div>
+    } @else {
+      @if (error()) {
+        <p class="alert error" role="alert">
+          {{ error() }}
+        </p>
+      }
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="savePolicy()"
+        novalidate
+      >
+        <div class="form-grid">
+          <label>
+            اسم السياسة <span class="required">*</span>
+
+            <input
+              formControlName="name"
+              maxlength="150"
+              placeholder="مثال: تأمين الإقامة"
+            />
+
+            @if (
+              form.controls.name.touched &&
+              form.controls.name.invalid
+            ) {
+              <small class="field-error">
+                الاسم مطلوب من حرفين إلى 150 حرفًا.
+              </small>
+            }
+          </label>
+
+          <label>
+            نوع الإيداع <span class="required">*</span>
+
+            <select
+              formControlName="type"
+              (change)="onTypeChange()"
+            >
+              <option [value]="depositType.Percentage">
+                نسبة مئوية
+              </option>
+
+              <option [value]="depositType.FixedAmount">
+                مبلغ ثابت
+              </option>
+            </select>
+          </label>
+
+          @if (isPercentage()) {
+            <label>
+              نسبة الإيداع (%) <span class="required">*</span>
+
+              <input
+                type="number"
+                formControlName="percentage"
+                min="0"
+                max="100"
+                step="0.01"
+              />
+
+              @if (
+                form.controls.percentage.touched &&
+                form.controls.percentage.invalid
+              ) {
+                <small class="field-error">
+                  أدخل نسبة من 0 إلى 100.
+                </small>
+              }
+            </label>
+
+            <p class="muted field-note">
+              سيُرسل مبلغ الإيداع بقيمة صفر عند اختيار النسبة.
+            </p>
+          } @else {
+            <label>
+              مبلغ الإيداع <span class="required">*</span>
+
+              <input
+                type="number"
+                formControlName="amount"
+                min="0"
+                step="0.01"
+              />
+
+              @if (
+                form.controls.amount.touched &&
+                form.controls.amount.invalid
+              ) {
+                <small class="field-error">
+                  أدخل مبلغًا لا يقل عن صفر.
+                </small>
+              }
+            </label>
+
+            <p class="muted field-note">
+              ستُرسل النسبة بقيمة صفر عند اختيار المبلغ الثابت.
+            </p>
+          }
+
+          <label>
+            بداية السريان <span class="required">*</span>
+
+            <input
+              type="datetime-local"
+              formControlName="validFrom"
+            />
+          </label>
+
+          <label>
+            نهاية السريان
+
+            <input
+              type="datetime-local"
+              formControlName="validTo"
+            />
+
+            <small>
+              اتركها فارغة إذا كانت السياسة مستمرة.
+            </small>
+          </label>
+
+          @if (policy()) {
+            <label class="full-width">
+              سبب إنشاء الإصدار الجديد
+              <span class="required">*</span>
+
+              <textarea
+                formControlName="reason"
+                rows="3"
+                maxlength="500"
+                placeholder="اكتب سبب تغيير السياسة"
+              ></textarea>
+
+              @if (
+                form.controls.reason.touched &&
+                form.controls.reason.invalid
+              ) {
+                <small class="field-error">
+                  السبب مطلوب من حرفين إلى 500 حرف.
+                </small>
+              }
+            </label>
+          }
+        </div>
+
+        <div class="button-row">
+          @if (permissions.canUpdateProperty()) {
+            <button
+              class="button primary"
+              type="submit"
+              [disabled]="saving()"
+            >
+              {{
+                saving()
+                  ? 'جارٍ الحفظ...'
+                  : policy()
+                    ? 'حفظ الإصدار الجديد'
+                    : 'إنشاء السياسة'
+              }}
+            </button>
+          }
+
+          <a
+            class="button secondary"
+            [routerLink]="['/properties', propertyId(), 'deposit-policies']"
+          >
+            إلغاء
+          </a>
+        </div>
+      </form>
+    }
+  </section>
+</main>

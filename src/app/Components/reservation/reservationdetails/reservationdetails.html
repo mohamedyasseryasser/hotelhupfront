@@ -1,0 +1,694 @@
+
+<main class="details-page" dir="rtl">
+
+  <a routerLink="/reservations" 
+  [queryParams]="{propertyId: propertyId() }" class="back-link">
+    ← العودة إلى الحجوزات
+  </a>
+
+  @if (loading()) {
+
+    <div class="loading-card">
+      جارٍ تحميل تفاصيل الحجز...
+    </div>
+
+  }
+
+  @else if (reservation(); as res) {
+
+    <!-- Reservation Header -->
+    <header class="hero card border-0 shadow-sm">
+
+      <div>
+        <span class="eyebrow">
+          Reservation #{{ res.id }}
+        </span>
+
+        <h1>
+          {{ res.guestName || 'ضيف غير مسمى' }}
+        </h1>
+
+        <p>
+          {{ res.checkInDate | date:'dd MMM yyyy' }}
+          <span class="arrow">←</span>
+          {{ res.checkOutDate | date:'dd MMM yyyy' }}
+        </p>
+      </div>
+
+      <div class="hero-side">
+
+        <div class="d-flex gap-2 align-items-center">
+
+          <span class="status-badge status-{{ res.status }}">
+            {{ label(res.status) }}
+          </span>
+
+          <a
+            class="btn btn-sm btn-light"
+            [routerLink]="['/reservations', res.id, 'edit']"
+            [queryParams]="{ propertyId: propertyId() }"
+          >
+            تعديل
+          </a>
+
+        </div>
+
+        <strong>
+          {{ res.totalAmount | number:'1.2-2' }}
+        </strong>
+
+        <small>إجمالي الحجز</small>
+
+      </div>
+
+    </header>
+
+    <!-- Alerts -->
+    @if (error()) {
+      <div class="alert alert-danger mt-2">
+        {{ error() }}
+      </div>
+    }
+
+    @if (success()) {
+      <div class="alert alert-success mt-2">
+        {{ success() }}
+      </div>
+    }
+
+    <!-- Main Layout -->
+    <div class="reservation-layout">
+
+      <!-- Main Content -->
+      <div class="reservation-content">
+
+        <!-- Reservation Information -->
+        <section class="card border-0 shadow-sm section-card info-card">
+
+          <div class="card-header bg-white border-0">
+
+            <strong>معلومات الحجز</strong>
+
+            <span class="text-muted small">
+              Property #{{ res.propertyId }}
+            </span>
+
+          </div>
+
+          <div class="card-body">
+
+            <div class="stats-grid">
+
+              <div>
+                <small>الوصول</small>
+                <strong>
+                  {{ res.checkInDate | date:'dd/MM/yyyy' }}
+                </strong>
+              </div>
+
+              <div>
+                <small>المغادرة</small>
+                <strong>
+                  {{ res.checkOutDate | date:'dd/MM/yyyy' }}
+                </strong>
+              </div>
+
+              <div>
+                <small>بالغون</small>
+                <strong>{{ res.adults }}</strong>
+              </div>
+
+              <div>
+                <small>أطفال</small>
+                <strong>{{ res.children }}</strong>
+              </div>
+
+              <div>
+                <small>Base</small>
+                <strong>
+                  {{ res.baseAmount | number:'1.2-2' }}
+                </strong>
+              </div>
+
+              <div>
+                <small>Tax</small>
+                <strong>
+                  {{ res.taxAmount | number:'1.2-2' }}
+                </strong>
+              </div>
+             <div *ngIf="folioId()">
+  <app-foliolist
+    [folioId]="folioId()"
+    [propertyId]="propertyId()"
+  ></app-foliolist>
+</div>
+
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- Rooms -->
+        <section class="card border-0 shadow-sm section-card rooms-card">
+
+          <div class="card-header bg-white border-0">
+
+            <strong>الغرف</strong>
+
+            <span class="text-muted small">
+              {{ res.rooms.length }} assignments
+            </span>
+
+          </div>
+
+          <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+              <thead>
+                <tr>
+                  <th>الغرفة</th>
+                  <th>الليالي</th>
+                  <th>السعر</th>
+                  <th>الإجمالي</th>
+                  <th>الحالة</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                @for (room of res.rooms; track room.id) {
+
+                  <tr>
+
+                    <td>
+                      <strong>
+                        {{ room.roomNumber || ('#' + room.roomId) }}
+                      </strong>
+                    </td>
+
+                    <td>{{ room.nights }}</td>
+
+                    <td>
+                      {{ room.nightlyRate | number:'1.2-2' }}
+                    </td>
+
+                    <td>
+                      {{ room.totalAmount | number:'1.2-2' }}
+                    </td>
+
+                    <td>
+
+                      <span
+                        class="room-state"
+                        [class.active-room]="room.isCurrent"
+                      >
+                        {{ room.isCurrent ? 'حالية' : 'سابقة' }}
+                      </span>
+
+                    </td>
+
+                    <td>
+
+                      @if (
+                        room.isCurrent &&
+                        res.status === statuses.CheckedIn
+                      ) {
+
+                        <button
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="release(room.roomId)"
+                          [disabled]="saving()"
+                        >
+                          تحرير
+                        </button>
+
+                      }
+
+                    </td>
+
+                  </tr>
+
+                }
+
+                @empty {
+
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-3">
+                      لا توجد غرف مرتبطة بالحجز.
+                    </td>
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+        <!-- Status History -->
+        <section class="card border-0 shadow-sm section-card history-card">
+
+          <div class="card-header bg-white border-0">
+            <strong>سجل الحالة</strong>
+          </div>
+
+          <div class="timeline">
+
+            @for (item of history(); track item.id) {
+
+              <div class="timeline-item">
+
+                <span></span>
+
+                <div>
+
+                  <strong>
+                    {{ label(item.toStatus) }}
+                  </strong>
+
+                  <small>
+                    {{ item.changedAt | date:'dd MMM yyyy, HH:mm' }}
+                    ·
+                    {{ item.reason || 'بدون سبب' }}
+                  </small>
+
+                </div>
+
+              </div>
+
+            }
+
+            @empty {
+
+              <p class="text-muted mb-0">
+                لا يوجد سجل حالات.
+              </p>
+
+            }
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- Actions -->
+      <div class="reservation-actions">
+
+        <section class="actions-card card border-0 shadow-sm">
+
+          <div class="card-header bg-white border-0">
+            <strong>إجراءات الحجز</strong>
+          </div>
+
+          <div class="card-body">
+
+            <div class="action-grid">
+
+              @if (
+                res.status === statuses.Pending &&
+                permissions.hasPermission('Reservation.Modify')
+              ) {
+
+                <button
+                  class="action action-blue"
+                  (click)="action.set('confirm')"
+                >
+                  تأكيد الحجز
+                </button>
+
+              }
+
+              @if (
+                (
+                  res.status === statuses.Pending ||
+                  res.status === statuses.Confirmed
+                ) &&
+                permissions.hasPermission('Reservation.Modify')
+              ) {
+
+                <button
+                  class="action action-purple"
+(click)="openAssignRoom(res)"
+                >
+                  تعيين غرفة
+                </button>
+
+              }
+
+              @if (
+                res.status === statuses.Confirmed &&
+                permissions.hasPermission('Reservation.Modify')
+              ) {
+
+                <button
+                  class="action action-green"
+                  (click)="action.set('checkin')"
+                >
+                  تسجيل الدخول
+                </button>
+
+              }
+
+              @if (
+                res.status === statuses.CheckedIn &&
+                permissions.hasPermission('Reservation.Modify')
+              ) {
+
+                <button
+                  class="action action-purple"
+                  (click)="action.set('checkout')"
+                >
+                  تسجيل الخروج
+                </button>
+
+                <button
+                  class="action action-blue"
+                  (click)="action.set('extend')"
+                >
+                  تمديد الإقامة
+                </button>
+
+                <button
+                  class="action action-orange"
+                  (click)="action.set('early')"
+                >
+                  خروج مبكر
+                </button>
+
+              }
+
+              @if (
+                (
+                  res.status === statuses.Pending ||
+                  res.status === statuses.Confirmed
+                ) &&
+                permissions.hasPermission('Reservation.Modify')
+              ) {
+
+                <button
+                  class="action action-red"
+                  (click)="action.set('noshow')"
+                >
+                  لم يحضر
+                </button>
+
+              }
+
+              @if (
+                (
+                  res.status === statuses.Pending ||
+                  res.status === statuses.Confirmed
+                ) &&
+                permissions.hasPermission('Reservation.Cancel')
+              ) {
+
+                <button
+                  class="action action-red"
+                  (click)="action.set('cancel')"
+                >
+                  إلغاء الحجز
+                </button>
+
+              }
+
+            </div>
+
+            <!-- Action Form -->
+            @if (action()) {
+
+              <div class="action-form">
+
+                <div class="form-title">
+
+                  {{
+                    action() === 'confirm'
+                      ? 'تأكيد الحجز'
+                      : action() === 'cancel'
+                        ? 'إلغاء الحجز'
+                        : action() === 'noshow'
+                          ? 'تسجيل No-show'
+                          : action() === 'assign'
+                            ? 'تعيين غرفة'
+                            : action() === 'checkin'
+                              ? 'تسجيل الدخول'
+                              : action() === 'checkout'
+                                ? 'تسجيل الخروج'
+                                : action() === 'extend'
+                                  ? 'تمديد الإقامة'
+                                  : 'خروج مبكر'
+                  }}
+
+                </div>
+
+                <!-- Extend / Early Checkout -->
+                @if (
+                  action() === 'extend' ||
+                  action() === 'early'
+                ) {
+
+                  <label>تاريخ المغادرة</label>
+
+                  <input
+                    class="form-control mb-2"
+                    type="date"
+                    [ngModel]="newCheckout()"
+                    (ngModelChange)="newCheckout.set($event)"
+                    [min]="res.checkOutDate | date:'yyyy-MM-dd'"
+                  >
+
+                }
+
+                <!-- Assign Room -->
+               @if (action() === 'assign') {
+
+  <div class="row g-2 mb-2">
+
+    <div class="col-6">
+      <label for="assign-adults">
+        بالغون
+      </label>
+
+      <input
+        id="assign-adults"
+        class="form-control"
+        type="number"
+        min="1"
+        [ngModel]="adults()"
+        (ngModelChange)="setAdults($event)"
+      >
+    </div>
+
+    <div class="col-6">
+      <label for="assign-children">
+        أطفال
+      </label>
+
+      <input
+        id="assign-children"
+        class="form-control"
+        type="number"
+        min="0"
+        [ngModel]="children()"
+        (ngModelChange)="setChildren($event)"
+      >
+    </div>
+
+  </div>
+
+  <button
+    type="button"
+    class="btn btn-outline-secondary btn-sm w-100 mb-2"
+    (click)="getAvailableRooms(res)"
+    [disabled]="loadingRoomOptions() || saving()"
+  >
+    {{
+      loadingRoomOptions()
+        ? 'جارٍ البحث...'
+        : 'تحديث الغرف المتاحة'
+    }}
+  </button>
+
+  <label for="available-room">
+    الغرفة المتاحة
+  </label>
+
+  <select
+    id="available-room"
+    class="form-select mb-2"
+    [ngModel]="selectedRoomId()"
+    (ngModelChange)="
+      selectedRoomId.set($event ? +$event : null);
+      selectedRatePlanId.set(0)
+    "
+    [disabled]="loadingRoomOptions()"
+  >
+
+    <option [ngValue]="null">
+      اختر الغرفة
+    </option>
+
+    @for (
+      room of availableRooms();
+      track room.roomId
+    ) {
+      <option [ngValue]="room.roomId">
+        {{ room.roomNumber }}
+        -
+        {{ room.roomTypeName }}
+        -
+        {{ room.nightlyRate | number:'1.2-2' }}
+      </option>
+    }
+
+  </select>
+
+  @if (selectedRoom(); as room) {
+    <small class="text-muted d-block mb-2">
+      السعة:
+      {{ room.maxAdults }} بالغين
+      ·
+      {{ room.maxChildren }} أطفال
+    </small>
+  }
+
+  <label for="current-rate-plan">
+    خطة السعر الحالية
+  </label>
+
+  <select
+    id="current-rate-plan"
+    class="form-select mb-2"
+    [ngModel]="selectedRatePlanId()"
+    (ngModelChange)="selectedRatePlanId.set(+$event)"
+    [disabled]="!selectedRoom()"
+  >
+
+    <option [ngValue]="0">
+      اختر خطة السعر
+    </option>
+
+    @for (
+      plan of ratePlansForSelectedRoom();
+      track plan.id
+    ) {
+      <option [ngValue]="plan.id">
+        {{ plan.name }}
+        -
+        {{ plan.currentVersion?.price | number:'1.2-2' }}
+        -
+        v{{ plan.currentVersion?.versionNumber }}
+      </option>
+    }
+
+  </select>
+
+  @if (
+    !loadingRoomOptions() &&
+    availableRooms().length === 0
+  ) {
+    <div class="alert alert-warning py-2">
+      لا توجد غرف متاحة لهذه الفترة والسعة.
+    </div>
+  }
+
+}
+
+
+                <!-- Cancellation / No Show -->
+                @if (
+                  action() === 'cancel' ||
+                  action() === 'noshow'
+                ) {
+
+                  <div class="form-check mb-2">
+
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [ngModel]="overridePolicy()"
+                      (ngModelChange)="overridePolicy.set($event)"
+                      id="override"
+                    >
+
+                    <label
+                      class="form-check-label"
+                      for="override"
+                    >
+                      تجاوز السياسة
+                    </label>
+
+                  </div>
+
+                }
+
+                <!-- Reason -->
+                @if (action() !== 'confirm') {
+
+                  <label>ملاحظات / السبب</label>
+
+                  <textarea
+                    class="form-control mb-2"
+                    rows="3"
+                    [ngModel]="reason()"
+                    (ngModelChange)="reason.set($event)"
+                    placeholder="اكتب سبب الإجراء"
+                  ></textarea>
+
+                }
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2 mt-3">
+
+                  <button
+                    class="btn btn-primary flex-fill"
+                    (click)="run(action())"
+                    [disabled]="saving()"
+                  >
+                    {{
+                      saving()
+                        ? 'جارٍ التنفيذ...'
+                        : 'تأكيد'
+                    }}
+                  </button>
+
+                  <button
+                    class="btn btn-light"
+                    (click)="action.set('')"
+                    [disabled]="saving()"
+                  >
+                    إلغاء
+                  </button>
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </div>
+
+  }
+
+  @else if (!loading()) {
+
+    <div class="alert alert-warning">
+      لم يتم العثور على الحجز.
+    </div>
+
+  }
+
+</main>

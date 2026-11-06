@@ -1,0 +1,252 @@
+:host {
+  display: block;
+}
+
+.availability-page {
+  padding: clamp(20px, 4vw, 46px);
+  min-height: calc(100vh - 76px);
+  background: #f7f9fc;
+  color: #172033;
+}
+
+.embedded-page {
+  padding: 0;
+  min-height: auto;
+  background: transparent;
+}
+
+.eyebrow {
+  color: #6b83df;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-heading h1 {
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 850;
+  margin: 8px 0 4px;
+}
+
+.page-heading p {
+  color: #7d899e;
+}
+
+.search-card,
+.results-card {
+  border-radius: 20px;
+}
+
+.search-card {
+  margin-top: 26px;
+}
+
+.embedded-page .search-card {
+  margin-top: 0;
+  border: 1px solid #edf0f5 !important;
+}
+
+.search-card label {
+  display: block;
+  color: #66738b;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+  min-height: 42px;
+  border-radius: 10px;
+  border-color: #e4e9f2;
+  font-size: 13px;
+}
+
+.embedded-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.embedded-summary span {
+  color: #7d899e;
+  font-size: 12px;
+}
+
+.embedded-summary strong {
+  color: #2f438f;
+}
+
+.embedded-summary .btn {
+  margin-right: auto;
+}
+
+.availability-table {
+  min-width: 1180px;
+  font-size: 12px;
+}
+
+.availability-table th {
+  background: #fbfcff;
+  color: #66738b;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  border-bottom: 1px solid #edf0f5;
+  padding: 14px 12px;
+}
+
+.availability-table td {
+  padding: 14px 12px;
+  border-color: #eef1f6;
+  vertical-align: middle;
+}
+
+.availability-table tbody tr {
+  transition: background 0.15s;
+}
+
+.availability-table tbody tr:hover {
+  background: #fafbff;
+}
+
+.availability-table .select-cell {
+  min-width: 155px;
+}
+
+.availability-table .policy-cell {
+  min-width: 170px;
+}
+
+.availability-table .form-select {
+  min-height: 34px;
+  font-size: 11px;
+  padding: 4px 8px;
+  background-color: #fff;
+}
+
+.availability-table .form-select:disabled {
+  background: #f1f8f4;
+  color: #16805d;
+  border-color: #c9eadc;
+  opacity: 1;
+}
+
+.selected-row {
+  background: #f3fbf7;
+}
+
+.id-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  color: #4c62c8;
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-weight: 800;
+}
+
+.price {
+  color: #3857c4;
+  white-space: nowrap;
+}
+
+.add-button {
+  min-width: 78px;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 44px !important;
+  text-align: center;
+  color: #8490a4;
+}
+
+.availability-table small {
+  font-size: 10px;
+}
+
+.availability-table strong {
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .availability-page {
+    padding: 18px 12px;
+  }
+
+  .embedded-page {
+    padding: 0;
+  }
+
+  .embedded-summary {
+    display: grid;
+  }
+
+  .embedded-summary .btn {
+    margin-right: 0;
+    width: 100%;
+  }
+}
+/* Select Styling */
+.availability-table .form-select {
+  min-width: 145px;
+  min-height: 40px;
+  padding: 8px 36px 8px 12px;
+
+  border: 1px solid #dce3ed;
+  border-radius: 9px;
+
+  background-color: #fff;
+  color: #25334a;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* Hover */
+.availability-table .form-select:hover:not(:disabled) {
+  border-color: #93b4f5;
+}
+
+/* Focus */
+.availability-table .form-select:focus {
+  border-color: #5685e8;
+  box-shadow: 0 0 0 3px rgba(86, 133, 232, 0.13);
+  outline: none;
+}
+
+/* Disabled */
+.availability-table .form-select:disabled {
+  background-color: #f1f4f9;
+  color: #8994a5;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Options */
+.availability-table .form-select option {
+  padding: 10px;
+  color: #25334a;
+  background-color: #fff;
+}
+
+/* Policy Selects */
+.availability-table .policy-cell .form-select {
+  min-width: 155px;
+  margin-bottom: 5px;
+}
+
+/* Small Select */
+.availability-table .form-select-sm {
+  font-size: 13px;
+}
+

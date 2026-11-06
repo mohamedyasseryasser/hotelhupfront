@@ -1,0 +1,57 @@
+.page {
+  padding: 24px;
+  min-height: calc(100vh - 76px);
+  background: #f7f9fc;
+  color: #172033;
+}
+
+.card {
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    minmax(0, 1fr)
+  );
+  gap: 12px;
+}
+
+.table td,
+.table th {
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.form-control,
+.form-select {
+  font-size: 13px;
+  border-radius: 9px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 14px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,202 @@
+
+<main class="container py-4" dir="rtl">
+  <a
+    class="btn btn-link px-0 mb-3"
+    [routerLink]="['/properties', propertyId(), 'rate-plans']"
+  >
+    ← العودة إلى خطط الأسعار
+  </a>
+
+  <section class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <span class="text-primary small fw-semibold">
+        RATE PLAN
+      </span>
+
+      <h1 class="h3 mb-1">
+        {{ plan() ? 'تعديل خطة الأسعار' : 'إضافة خطة أسعار' }}
+      </h1>
+
+      <p class="text-body-secondary">
+        حدد نوع الغرفة والسعر وفترة سريان الخطة.
+      </p>
+
+      @if (error()) {
+        <div class="alert alert-danger">
+          {{ error() }}
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="text-body-secondary py-3">
+          جارٍ تحميل الخطة...
+        </div>
+      } @else {
+        <form
+          [formGroup]="form"
+          (ngSubmit)="save()"
+          novalidate
+        >
+          <div class="row g-3">
+
+            <!-- Room Type -->
+            <div class="col-md-6">
+              <label class="form-label">
+                نوع الغرفة
+                <span class="text-danger">*</span>
+              </label>
+
+              <select
+                class="form-select"
+                formControlName="roomTypeId"
+              >
+                <option [ngValue]="0">
+                  اختر نوع الغرفة
+                </option>
+
+                @for (roomType of roomTypes(); track roomType.id) {
+                  <option [ngValue]="roomType.id">
+                    {{ roomType.name }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- Plan Name -->
+            <div class="col-md-6">
+              <label class="form-label">
+                اسم الخطة
+                <span class="text-danger">*</span>
+              </label>
+
+              <input
+                class="form-control"
+                formControlName="name"
+                maxlength="100"
+                placeholder="مثال: أفضل سعر متاح"
+              />
+            </div>
+
+            <!-- Plan Type -->
+            <div class="col-md-4">
+              <label class="form-label">
+                نوع الخطة
+              </label>
+
+              <select
+                class="form-select"
+                formControlName="type"
+              >
+                @for (type of [0, 1, 2, 3, 4]; track type) {
+                  <option [ngValue]="type">
+                    {{ typeLabel(type) }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- Price -->
+            <div class="col-md-4">
+              <label class="form-label">
+                السعر
+                <span class="text-danger">*</span>
+              </label>
+
+              <input
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="price"
+              />
+            </div>
+
+            <!-- Refundable -->
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  formControlName="isRefundable"
+                  id="isRefundable"
+                />
+
+                <label
+                  class="form-check-label"
+                  for="isRefundable"
+                >
+                  قابلة للاسترداد
+                </label>
+              </div>
+            </div>
+
+            <!-- Valid From -->
+            <div class="col-md-6">
+              <label class="form-label">
+                بداية السريان
+                <span class="text-danger">*</span>
+              </label>
+
+              <input
+                class="form-control"
+                type="datetime-local"
+                formControlName="validFrom"
+              />
+            </div>
+
+            <!-- Valid To -->
+            <div class="col-md-6">
+              <label class="form-label">
+                نهاية السريان
+              </label>
+
+              <input
+                class="form-control"
+                type="datetime-local"
+                formControlName="validTo"
+              />
+
+              <div class="form-text">
+                اتركها فارغة إذا كانت مستمرة.
+              </div>
+            </div>
+
+            <!-- Rules -->
+            <div class="col-12">
+              <label class="form-label">
+                القواعد
+              </label>
+
+              <textarea
+                class="form-control"
+                rows="5"
+                formControlName="rules"
+                dir="ltr"
+                placeholder="JSON أو وصف قواعد الخطة"
+              ></textarea>
+            </div>
+
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex gap-2 mt-4">
+            <button
+              class="btn btn-primary"
+              type="submit"
+              [disabled]="saving()"
+            >
+              {{ saving() ? 'جارٍ الحفظ...' : 'حفظ' }}
+            </button>
+
+            <a
+              class="btn btn-outline-secondary"
+              [routerLink]="['/properties', propertyId(), 'rate-plans']"
+            >
+              إلغاء
+            </a>
+          </div>
+        </form>
+      }
+    </div>
+  </section>
+</main>

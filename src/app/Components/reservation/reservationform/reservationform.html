@@ -1,0 +1,507 @@
+<main class="form-page" dir="rtl">
+  <a routerLink="/reservations"   
+           [queryParams]="{propertyId: propertyId() }"
+
+  class="back-link">
+    ← العودة للحجوزات
+  </a>
+
+  <div class="heading">
+    <span class="eyebrow">Reservation workspace</span>
+
+    <h1>
+      {{ editId() ? 'تعديل الحجز' : 'إنشاء حجز جديد' }}
+    </h1>
+
+    <p>
+      اختر تواريخ الحجز والسياسات، ثم ابحث عن الغرف واختر Rate Plan لكل غرفة.
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="alert alert-info">
+      جارٍ تحميل الحجز...
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">
+      {{ error() }}
+    </div>
+  }
+
+  @if (success()) {
+    <div class="alert alert-success">
+      {{ success() }}
+    </div>
+  }
+
+  <form
+    class="card border-0 shadow-sm form-card"
+    (ngSubmit)="submit()"
+  >
+    <div class="card-body">
+      <section>
+        <h2>بيانات الإقامة</h2>
+
+        <div class="row g-3">
+          <div class="col-12 col-md-3">
+            <label>Property ID</label>
+
+            <input
+              class="form-control"
+              type="number"
+              [value]="propertyId()"
+              disabled
+            />
+          </div>
+
+          <div class="col-12 col-md-3">
+            <label>
+              Guest ID
+              <span>*</span>
+            </label>
+
+            <input
+              class="form-control"
+              type="number"
+              [ngModel]="form().guestId"
+              (ngModelChange)="
+                patchForm('guestId', +$event)
+              "
+              name="guestId"
+              min="1"
+              required
+            />
+          </div>
+
+          <div class="col-12 col-md-3">
+            <label>مصدر الحجز</label>
+
+            <select
+              class="form-select"
+              [ngModel]="form().source"
+              (ngModelChange)="
+                patchForm('source', $event)
+              "
+              name="source"
+            >
+              <option [ngValue]="sources.Direct">
+                مباشر
+              </option>
+
+              <option [ngValue]="sources.Online">
+                أونلاين
+              </option>
+
+              <option [ngValue]="sources.Phone">
+                هاتف
+              </option>
+
+              <option [ngValue]="sources.Agent">
+                وكيل
+              </option>
+
+              <option [ngValue]="sources.WalkIn">
+                Walk-in
+              </option>
+            </select>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <label>
+              الوصول
+              <span>*</span>
+            </label>
+
+            <input
+              class="form-control"
+              type="date"
+              [ngModel]="form().checkInDate"
+              (ngModelChange)="
+                patchForm('checkInDate', $event)
+              "
+              name="checkInDate"
+              required
+            />
+          </div>
+
+          <div class="col-6 col-md-3">
+            <label>
+              المغادرة
+              <span>*</span>
+            </label>
+
+            <input
+              class="form-control"
+              type="date"
+              [ngModel]="form().checkOutDate"
+              (ngModelChange)="
+                patchForm('checkOutDate', $event)
+              "
+              name="checkOutDate"
+              required
+            />
+          </div>
+ 
+ 
+
+          <div class="col-12 col-md-6">
+            <label>ملاحظات</label>
+
+            <input
+              class="form-control"
+              [ngModel]="form().notes"
+              (ngModelChange)="
+                patchForm('notes', $event)
+              "
+              name="notes"
+              placeholder="ملاحظات الحجز"
+            />
+          </div>
+        </div>
+      </section>
+<section class="mt-4 policy-section">
+  <div class="section-title">
+    <div>
+      <h2>سياسات الحجز</h2>
+
+      <span>
+        اختر Cancellation Policy و Deposit Policy.
+      </span>
+    </div>
+  </div>
+
+  @if (policiesLoading()) {
+    <div class="alert alert-info mt-3 mb-0">
+      جارٍ تحميل السياسات...
+    </div>
+  } @else {
+    <div class="row g-3 mt-1">
+      <!-- Cancellation Policy -->
+      <div class="col-12 col-md-6">
+        <label>
+          Cancellation Policy
+          <span>*</span>
+        </label>
+
+        <select
+          class="form-select"
+          [ngModel]="form().cancellationPolicyId"
+          (ngModelChange)="
+            selectCancellationPolicy(+$event)
+          "
+          name="reservationCancellationPolicy"
+          [disabled]="!!editId()"
+          required
+        >
+          <option [ngValue]="0">
+            اختر Cancellation Policy
+          </option>
+
+          @for (
+            policy of cancellationPolicies();
+            track policy.id
+          ) {
+            @if (
+              policy.status ===
+              cancellationStatus.Active
+            ) {
+              @if (
+                currentCancellationVersionId(policy);
+                as version
+              ) {
+                <option
+                  [ngValue]="policy.id"
+                >
+                  {{ policy.name }}
+                  —
+                  From:
+                  {{
+                    version.validFrom
+                      | date: 'yyyy-MM-dd HH:mm'
+                  }}
+                  |
+                  To:
+                  {{
+                    version.validTo
+                      ? (version.validTo
+                          | date: 'yyyy-MM-dd HH:mm')
+                      : 'Open'
+                  }}
+                </option>
+              } @else {
+                <option
+                  [ngValue]="policy.id"
+                >
+                  {{ policy.name }}
+                  — لا يوجد تاريخ إصدار
+                </option>
+              }
+            }
+          }
+        </select>
+      </div>
+
+      <!-- Deposit Policy -->
+      <div class="col-12 col-md-6">
+        <label>
+          Deposit Policy
+          <span>*</span>
+        </label>
+
+        <select
+          class="form-select"
+          [ngModel]="form().depositPolicyId"
+          (ngModelChange)="
+            selectDepositPolicy(+$event)
+          "
+          name="reservationDepositPolicy"
+          [disabled]="!!editId()"
+          required
+        >
+          <option [ngValue]="0">
+            اختر Deposit Policy
+          </option>
+
+          @for (
+            policy of depositPolicies();
+            track policy.id
+          ) {
+            @if (policy.isActive) {
+              @if (
+                currentDepositVersionId(policy);
+                as version
+              ) {
+                <option
+                  [ngValue]="policy.id"
+                >
+                  Deposit Policy #{{ policy.id }}
+                  —
+                  From:
+                  {{
+                    version.validFrom
+                      | date: 'yyyy-MM-dd HH:mm'
+                  }}
+                  |
+                  To:
+                  {{
+                    version.validTo
+                      ? (version.validTo
+                          | date: 'yyyy-MM-dd HH:mm')
+                      : 'Open'
+                  }}
+                </option>
+              } @else {
+                <option
+                  [ngValue]="policy.id"
+                >
+                  Deposit Policy #{{ policy.id }}
+                  — لا يوجد تاريخ إصدار
+                </option>
+              }
+            }
+          }
+        </select>
+      </div>
+    </div>
+  }
+</section>
+
+
+      <section class="mt-4 availability-section">
+        <div class="section-title">
+          <div>
+            <h2>الغرف و Rate Plans</h2>
+
+            <span>
+              اختر Rate Plan لكل غرفة ثم اضغط إضافة.
+            </span>
+          </div>
+
+          <span class="room-counter">
+            {{ rooms().length }} غرفة في الحجز
+          </span>
+        </div>
+
+       <app-avaliavility
+  [embedded]="false"
+  [propertyId]="propertyId()"
+  [checkInDate]="form().checkInDate"
+  [checkOutDate]="form().checkOutDate"
+  [excludedReservationId]="editId()"
+  [selectedRoomIds]="selectedRoomIds()"
+  (roomSelected)="onRoomSelected($event)"
+/>
+
+      </section>
+
+      <section class="mt-4 selected-section">
+        <div class="section-title">
+          <div>
+            <h2>الغرف المضافة للحجز</h2>
+
+            <span>
+              يمكن تعديل عدد الضيوف والخصومات والرسوم لكل غرفة.
+            </span>
+          </div>
+        </div>
+
+        @if (rooms().length) {
+          <div class="selected-rooms">
+            @for (
+              room of rooms();
+              track room.roomId;
+              let index = $index
+            ) {
+              <article class="selected-room-row">
+                <div class="selected-room-main">
+                  <strong>
+                    غرفة {{ room.roomNumber || room.roomId }}
+                  </strong>
+
+                  <span>
+                    {{
+                      room.roomTypeName ||
+                        ('Room Type #' + room.roomTypeId)
+                    }}
+                  </span>
+
+                  <small>
+                    Room ID: {{ room.roomId }}
+                    · Rate Plan ID: {{ room.ratePlanId }}
+                  </small>
+                </div>
+
+                <div class="selected-room-fields">
+                 <label>
+  بالغون
+  <small>
+    الحد الأقصى
+    {{ room.maxAdults ?? 20 }}
+  </small>
+
+  <input
+    class="form-control"
+    type="number"
+    min="1"
+    [max]="room.maxAdults ?? 20"
+    [ngModel]="room.adults"
+    (ngModelChange)="
+      patchRoom(index, {
+        adults: clampAdults(
+          $event,
+          room.maxAdults ?? 20
+        )
+      })
+    "
+    [name]="'adults' + index"
+  />
+</label>
+
+<label>
+  أطفال
+  <small>
+    الحد الأقصى
+    {{ room.maxChildren ?? 20 }}
+  </small>
+
+  <input
+    class="form-control"
+    type="number"
+    min="0"
+    [max]="room.maxChildren ?? 20"
+    [ngModel]="room.children"
+    (ngModelChange)="
+      patchRoom(index, {
+        children: clampChildren(
+          $event,
+          room.maxChildren ?? 20
+        )
+      })
+    "
+    [name]="'children' + index"
+  />
+</label>
+
+                  <label>
+                    خصم
+
+                    <input
+                      class="form-control"
+                      type="number"
+                      min="0"
+                      [ngModel]="room.discountAmount"
+                      (ngModelChange)="
+                        patchRoom(index, {
+                          discountAmount: +$event
+                        })
+                      "
+                      [name]="'discount' + index"
+                    />
+                  </label>
+
+                  <label>
+                    رسوم
+
+                    <input
+                      class="form-control"
+                      type="number"
+                      min="0"
+                      [ngModel]="room.feeAmount"
+                      (ngModelChange)="
+                        patchRoom(index, {
+                          feeAmount: +$event
+                        })
+                      "
+                      [name]="'fee' + index"
+                    />
+                  </label>
+
+                  <button
+                    class="btn btn-outline-danger remove-button"
+                    type="button"
+                    (click)="removeRoom(index)"
+                  >
+                    حذف
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-selected">
+            لم تتم إضافة غرف بعد. ابحث عن التوافر واختر غرفة.
+          </div>
+        }
+      </section>
+    </div>
+
+    <div
+      class="card-footer bg-white border-0 d-flex justify-content-end gap-2"
+    >
+      <a
+        routerLink="/reservations"
+        class="btn btn-light"
+           [queryParams]="{propertyId: propertyId() }"
+
+      >
+        إلغاء
+      </a>
+
+      <button
+        class="btn btn-primary px-4"
+        type="submit"
+        [disabled]="saving() || !canSubmit()"
+      >
+        {{
+          saving()
+            ? 'جارٍ الحفظ...'
+            : editId()
+              ? 'حفظ التعديل'
+              : 'إنشاء الحجز'
+        }}
+      </button>
+    </div>
+  </form>
+</main>

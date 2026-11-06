@@ -1,0 +1,56 @@
+<main class="tax-page" dir="rtl">
+  <a class="back-link" [routerLink]="['/properties', propertyId(), 'taxes']">← العودة إلى قائمة الضرائب</a>
+  <section class="panel form-panel">
+    <p class="eyebrow">{{ editingTax() ? 'EDIT TAX' : 'NEW TAX' }}</p>
+    <h1>{{ editingTax() ? 'تعديل الضريبة' : 'إضافة ضريبة جديدة' }}</h1>
+    <p class="muted">أدخل بيانات الضريبة وفترة سريانها لهذا العقار.</p>
+
+    @if (loading()) {
+      <div class="state">جارٍ تحميل بيانات الضريبة...</div>
+    } @else {
+      @if (error()) { <p class="alert error" role="alert">{{ error() }}</p> }
+      <form [formGroup]="form" (ngSubmit)="saveTax()" novalidate>
+        <div class="form-grid">
+          <label>اسم الضريبة <span class="required">*</span>
+            <input formControlName="name" maxlength="150" placeholder="مثال: ضريبة القيمة المضافة" />
+            @if (form.controls.name.touched && form.controls.name.invalid) { <small class="field-error">الاسم مطلوب (حرفان على الأقل، وبحد أقصى 150).</small> }
+          </label>
+          <label>الكود <span class="required">*</span>
+            <input formControlName="code" maxlength="50" placeholder="مثال: VAT" />
+            @if (form.controls.code.touched && form.controls.code.invalid) { <small class="field-error">الكود مطلوب وبحد أقصى 50 حرفًا.</small> }
+          </label>
+          <label>نوع الضريبة <span class="required">*</span>
+            <select formControlName="type"><option [ngValue]="taxType.Percentage">نسبة مئوية</option><option [ngValue]="taxType.FixedAmount">مبلغ ثابت</option></select>
+          </label>
+          <label>{{ form.controls.type.value === taxType.Percentage ? 'النسبة (%)' : 'المبلغ' }} <span class="required">*</span>
+            <input type="number" formControlName="rate" min="0" step="0.01" />
+            @if (form.controls.rate.touched && form.controls.rate.invalid) { <small class="field-error">أدخل قيمة صفر أو أكبر.</small> }
+          </label>
+          <label>ساري من <span class="required">*</span>
+            <input type="datetime-local" formControlName="validFrom" />
+            @if (form.controls.validFrom.touched && form.controls.validFrom.invalid) { <small class="field-error">تاريخ بداية السريان مطلوب.</small> }
+          </label>
+          <label>ساري حتى
+            <input type="datetime-local" formControlName="validTo" />
+            <small>اتركه فارغًا إذا لم يكن هناك تاريخ انتهاء.</small>
+          </label>
+          <label class="checkbox-field full-width"><input type="checkbox" formControlName="isInclusive" /> السعر شامل الضريبة</label>
+          @if (editingTax()) {
+            <label class="full-width">سبب التعديل <span class="required">*</span>
+              <textarea formControlName="reason" rows="3" maxlength="500" placeholder="اكتب سبب تعديل بيانات الضريبة"></textarea>
+              @if (form.controls.reason.touched && form.controls.reason.invalid) { <small class="field-error">سبب التعديل مطلوب من حرفين إلى 500 حرف.</small> }
+            </label>
+          }
+        </div>
+
+        <div class="button-row">
+          <button class="button primary" type="submit" [disabled]="saving()" 
+           [class.hidden]="!permissions.canUpdateProperty()"
+>
+            {{ saving() ? 'جارٍ الحفظ...' : (editingTax() ? 'حفظ التعديلات' : 'إنشاء الضريبة') }}</button>
+          <a class="button secondary" [routerLink]="['/properties', propertyId(), 'taxes']">إلغاء</a>
+        </div>
+      </form>
+    }
+  </section>
+</main>

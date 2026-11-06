@@ -1,0 +1,536 @@
+ {
+  "departments": [
+    {
+      "id": 1,
+      "name": "Cardiology",
+      "description": "Heart and cardiovascular diseases"
+    },
+    {
+      "id": 2,
+      "name": "Neurology",
+      "description": "Brain and nervous system disorders"
+    },
+    {
+      "id": 3,
+      "name": "Orthopedics",
+      "description": "Bones, joints and muscles"
+    },
+    {
+      "id": 4,
+      "name": "Pediatrics",
+      "description": "Medical care for children"
+    },
+    {
+      "id": 5,
+      "name": "Dermatology",
+      "description": "Skin, hair and nail conditions"
+    }
+  ],
+  "doctors": [
+    {
+      "id": 1,
+      "name": "Ahmed Hassan",
+      "specialty": "Cardiologist",
+      "departmentId": 1,
+      "phone": "01011111111",
+      "email": "ahmed.hassan@hospital.com",
+      "experienceYears": 12,
+      "isAvailable": true
+    },
+    {
+      "id": 2,
+      "name": "Mona Ali",
+      "specialty": "Neurologist",
+      "departmentId": 2,
+      "phone": "01022222222",
+      "email": "mona.ali@hospital.com",
+      "experienceYears": 9,
+      "isAvailable": true
+    },
+    {
+      "id": 3,
+      "name": "Omar Mohamed",
+      "specialty": "Orthopedic Surgeon",
+      "departmentId": 3,
+      "phone": "01033333333",
+      "email": "omar.mohamed@hospital.com",
+      "experienceYears": 15,
+      "isAvailable": true
+    },
+    {
+      "id": 4,
+      "name": "Sara Mahmoud",
+      "specialty": "Pediatrician",
+      "departmentId": 4,
+      "phone": "01044444444",
+      "email": "sara.mahmoud@hospital.com",
+      "experienceYears": 7,
+      "isAvailable": true
+    },
+    {
+      "id": 5,
+      "name": "Youssef Samir",
+      "specialty": "Dermatologist",
+      "departmentId": 5,
+      "phone": "01055555555",
+      "email": "youssef.samir@hospital.com",
+      "experienceYears": 10,
+      "isAvailable": true
+    },
+    {
+      "id": 6,
+      "name": "Nour Adel",
+      "specialty": "Cardiologist",
+      "departmentId": 1,
+      "phone": "01066666666",
+      "email": "nour.adel@hospital.com",
+      "experienceYears": 6,
+      "isAvailable": false
+    },
+    {
+      "id": 7,
+      "name": "Karim Tarek",
+      "specialty": "Neurologist",
+      "departmentId": 2,
+      "phone": "01077777777",
+      "email": "karim.tarek@hospital.com",
+      "experienceYears": 11,
+      "isAvailable": true
+    }
+  ],
+  "patients": [
+    {
+      "id": 1,
+      "name": "Ahmed Ali",
+      "dateOfBirth": "1990-05-12",
+      "gender": "Male",
+      "phone": "01111111111",
+      "email": "ahmed.ali@email.com",
+      "address": "Cairo",
+      "bloodType": "O+",
+      "doctorId": 1,
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "name": "Sara Mohamed",
+      "dateOfBirth": "1987-11-20",
+      "gender": "Female",
+      "phone": "01122222222",
+      "email": "sara.mohamed@email.com",
+      "address": "Giza",
+      "bloodType": "A+",
+      "doctorId": 2,
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "name": "Mohamed Hassan",
+      "dateOfBirth": "1975-03-08",
+      "gender": "Male",
+      "phone": "01133333333",
+      "email": "mohamed.hassan@email.com",
+      "address": "Alexandria",
+      "bloodType": "B+",
+      "doctorId": 3,
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "name": "Mariam Ahmed",
+      "dateOfBirth": "2015-08-15",
+      "gender": "Female",
+      "phone": "01144444444",
+      "email": "mariam.parent@email.com",
+      "address": "Cairo",
+      "bloodType": "AB+",
+      "doctorId": 4,
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "name": "Omar Khaled",
+      "dateOfBirth": "1995-01-30",
+      "gender": "Male",
+      "phone": "01155555555",
+      "email": "omar.khaled@email.com",
+      "address": "Mansoura",
+      "bloodType": "O-",
+      "doctorId": 5,
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "name": "Nour Ahmed",
+      "dateOfBirth": "1982-07-19",
+      "gender": "Female",
+      "phone": "01166666666",
+      "email": "nour.ahmed@email.com",
+      "address": "Tanta",
+      "bloodType": "A-",
+      "doctorId": 1,
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "name": "Karim Mostafa",
+      "dateOfBirth": "1968-12-02",
+      "gender": "Male",
+      "phone": "01177777777",
+      "email": "karim.mostafa@email.com",
+      "address": "Cairo",
+      "bloodType": "B-",
+      "doctorId": 2,
+      "isActive": false
+    },
+    {
+      "id": 8,
+      "name": "Hana Samir",
+      "dateOfBirth": "2001-04-25",
+      "gender": "Female",
+      "phone": "01188888888",
+      "email": "hana.samir@email.com",
+      "address": "Giza",
+      "bloodType": "O+",
+      "doctorId": 5,
+      "isActive": true
+    },
+    {
+      "id": 9,
+      "name": "Yassin Adel",
+      "dateOfBirth": "1989-09-10",
+      "gender": "Male",
+      "phone": "01199999999",
+      "email": "yassin.adel@email.com",
+      "address": "Cairo",
+      "bloodType": "A+",
+      "doctorId": 3,
+      "isActive": true
+    },
+    {
+      "id": 10,
+      "name": "Menna Tarek",
+      "dateOfBirth": "1998-06-18",
+      "gender": "Female",
+      "phone": "01211111111",
+      "email": "menna.tarek@email.com",
+      "address": "Alexandria",
+      "bloodType": "AB-",
+      "doctorId": 4,
+      "isActive": true
+    }
+  ],
+  "rooms": [
+    {
+      "id": 1,
+      "roomNumber": "101",
+      "type": "Examination",
+      "floor": 1,
+      "isAvailable": true
+    },
+    {
+      "id": 2,
+      "roomNumber": "102",
+      "type": "Examination",
+      "floor": 1,
+      "isAvailable": true
+    },
+    {
+      "id": 3,
+      "roomNumber": "201",
+      "type": "Surgery",
+      "floor": 2,
+      "isAvailable": false
+    },
+    {
+      "id": 4,
+      "roomNumber": "202",
+      "type": "Examination",
+      "floor": 2,
+      "isAvailable": true
+    },
+    {
+      "id": 5,
+      "roomNumber": "301",
+      "type": "Emergency",
+      "floor": 3,
+      "isAvailable": true
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "doctorId": 1,
+      "roomId": 1,
+      "date": "2026-10-07",
+      "time": "09:00",
+      "status": "Confirmed",
+      "reason": "Regular heart checkup"
+    },
+    {
+      "id": 2,
+      "patientId": 2,
+      "doctorId": 2,
+      "roomId": 2,
+      "date": "2026-10-07",
+      "time": "10:00",
+      "status": "Pending",
+      "reason": "Headache and dizziness"
+    },
+    {
+      "id": 3,
+      "patientId": 3,
+      "doctorId": 3,
+      "roomId": 4,
+      "date": "2026-10-07",
+      "time": "11:30",
+      "status": "Confirmed",
+      "reason": "Knee pain"
+    },
+    {
+      "id": 4,
+      "patientId": 4,
+      "doctorId": 4,
+      "roomId": 1,
+      "date": "2026-10-08",
+      "time": "09:30",
+      "status": "Confirmed",
+      "reason": "Regular pediatric examination"
+    },
+    {
+      "id": 5,
+      "patientId": 5,
+      "doctorId": 5,
+      "roomId": 2,
+      "date": "2026-10-08",
+      "time": "12:00",
+      "status": "Cancelled",
+      "reason": "Skin rash"
+    },
+    {
+      "id": 6,
+      "patientId": 6,
+      "doctorId": 1,
+      "roomId": 1,
+      "date": "2026-10-09",
+      "time": "10:30",
+      "status": "Pending",
+      "reason": "Chest pain"
+    },
+    {
+      "id": 7,
+      "patientId": 8,
+      "doctorId": 5,
+      "roomId": 4,
+      "date": "2026-10-09",
+      "time": "13:00",
+      "status": "Confirmed",
+      "reason": "Acne treatment"
+    },
+    {
+      "id": 8,
+      "patientId": 9,
+      "doctorId": 3,
+      "roomId": 2,
+      "date": "2026-10-10",
+      "time": "09:00",
+      "status": "Confirmed",
+      "reason": "Back pain"
+    },
+    {
+      "id": 9,
+      "patientId": 10,
+      "doctorId": 4,
+      "roomId": 1,
+      "date": "2026-10-10",
+      "time": "11:00",
+      "status": "Pending",
+      "reason": "Fever"
+    },
+    {
+      "id": 10,
+      "patientId": 1,
+      "doctorId": 1,
+      "roomId": 1,
+      "date": "2026-10-12",
+      "time": "14:00",
+      "status": "Confirmed",
+      "reason": "Follow-up"
+    }
+  ],
+  "medicalRecords": [
+    {
+      "id": 1,
+      "patientId": 1,
+      "doctorId": 1,
+      "date": "2026-09-10",
+      "diagnosis": "Hypertension",
+      "treatment": "Lifestyle modification and medication",
+      "notes": "Blood pressure should be monitored regularly"
+    },
+    {
+      "id": 2,
+      "patientId": 1,
+      "doctorId": 1,
+      "date": "2026-08-05",
+      "diagnosis": "High cholesterol",
+      "treatment": "Diet modification",
+      "notes": "Follow-up after three months"
+    },
+    {
+      "id": 3,
+      "patientId": 2,
+      "doctorId": 2,
+      "date": "2026-09-15",
+      "diagnosis": "Migraine",
+      "treatment": "Prescribed medication",
+      "notes": "Avoid known migraine triggers"
+    },
+    {
+      "id": 4,
+      "patientId": 3,
+      "doctorId": 3,
+      "date": "2026-09-20",
+      "diagnosis": "Knee inflammation",
+      "treatment": "Physical therapy",
+      "notes": "Three sessions per week"
+    },
+    {
+      "id": 5,
+      "patientId": 4,
+      "doctorId": 4,
+      "date": "2026-09-25",
+      "diagnosis": "Common cold",
+      "treatment": "Rest and fluids",
+      "notes": "No complications"
+    },
+    {
+      "id": 6,
+      "patientId": 5,
+      "doctorId": 5,
+      "date": "2026-09-28",
+      "diagnosis": "Acne",
+      "treatment": "Topical treatment",
+      "notes": "Review after four weeks"
+    },
+    {
+      "id": 7,
+      "patientId": 6,
+      "doctorId": 1,
+      "date": "2026-09-30",
+      "diagnosis": "Arrhythmia",
+      "treatment": "Medication and monitoring",
+      "notes": "ECG required during next visit"
+    },
+    {
+      "id": 8,
+      "patientId": 8,
+      "doctorId": 5,
+      "date": "2026-09-29",
+      "diagnosis": "Dermatitis",
+      "treatment": "Cream and antihistamine",
+      "notes": "Avoid irritants"
+    },
+    {
+      "id": 9,
+      "patientId": 9,
+      "doctorId": 3,
+      "date": "2026-09-18",
+      "diagnosis": "Lower back pain",
+      "treatment": "Physiotherapy",
+      "notes": "Avoid heavy lifting"
+    },
+    {
+      "id": 10,
+      "patientId": 10,
+      "doctorId": 4,
+      "date": "2026-09-22",
+      "diagnosis": "Viral infection",
+      "treatment": "Rest and fluids",
+      "notes": "Temperature monitoring recommended"
+    }
+  ],
+  "timeSlots": [
+    {
+      "id": 1,
+      "doctorId": 1,
+      "date": "2026-10-11",
+      "time": "09:00",
+      "isAvailable": true
+    },
+    {
+      "id": 2,
+      "doctorId": 1,
+      "date": "2026-10-11",
+      "time": "10:00",
+      "isAvailable": true
+    },
+    {
+      "id": 3,
+      "doctorId": 1,
+      "date": "2026-10-11",
+      "time": "11:00",
+      "isAvailable": false
+    },
+    {
+      "id": 4,
+      "doctorId": 2,
+      "date": "2026-10-11",
+      "time": "09:30",
+      "isAvailable": true
+    },
+    {
+      "id": 5,
+      "doctorId": 2,
+      "date": "2026-10-11",
+      "time": "10:30",
+      "isAvailable": true
+    },
+    {
+      "id": 6,
+      "doctorId": 3,
+      "date": "2026-10-11",
+      "time": "12:00",
+      "isAvailable": true
+    },
+    {
+      "id": 7,
+      "doctorId": 4,
+      "date": "2026-10-11",
+      "time": "13:00",
+      "isAvailable": true
+    },
+    {
+      "id": 8,
+      "doctorId": 5,
+      "date": "2026-10-11",
+      "time": "14:00",
+      "isAvailable": true
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "123456",
+      "role": "Admin",
+      "name": "Hospital Admin"
+    },
+    {
+      "id": 2,
+      "username": "doctor",
+      "password": "123456",
+      "role": "Doctor",
+      "name": "Ahmed Hassan"
+    },
+    {
+      "id": 3,
+      "username": "reception",
+      "password": "123456",
+      "role": "Receptionist",
+      "name": "Reception User"
+    }
+  ]
+}
+

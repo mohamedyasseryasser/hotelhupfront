@@ -1,0 +1,202 @@
+<main class="details" dir="rtl">
+ <button (click)="logout()">logout</button>
+
+  <a class="back" routerLink="/properties">
+    ← العودة إلى العقارات
+  </a>
+
+  @if (loading()) {
+    <div class="state">
+      جارٍ تحميل العقار...
+    </div>
+  } @else if (error()) {
+    <p class="error" role="alert">
+      {{ error() }}
+    </p>
+  } @else if (property(); as item) {         
+    <section class="card">
+
+      <div class="heading">
+        <div>
+          <p class="eyebrow">
+            PROPERTY DETAILS
+          </p>
+
+          <h1>
+            {{ item.name }}
+          </h1>
+
+          <p class="muted">
+            {{ item.code }}
+          </p>
+        </div>
+
+       <span class="status" [class.inactive]="item.status !== PropertyStatus.Active">
+  {{ item.status === PropertyStatus.Active ? 'نشط' : 'غير نشط' }}
+</span>
+
+      </div>
+
+      <dl>
+        <dt>الوصف</dt>
+        <dd>{{ item.description || '—' }}</dd>
+
+        <dt>تاريخ الإنشاء</dt>
+        <dd>{{ item.createdAt | date: 'medium' }}</dd>
+
+        <dt>آخر تحديث</dt>
+        <dd>
+          {{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}
+        </dd>
+
+        <dt>الضرائب النشطة</dt>
+        <dd>{{ item.activeTaxes }}</dd>
+
+        <dt>سياسات الإلغاء النشطة</dt>
+        <dd>{{ item.activeCancellationPolicies }}</dd>
+
+        <dt>سياسات الإيداع النشطة</dt>
+        <dd>{{ item.activeDepositPolicies }}</dd>
+      </dl>
+
+      @if (item.settingsResponse; as settings) {
+        <section class="settings-summary">
+
+          <h2>
+            ملخص الإعدادات
+          </h2>
+
+          <p>
+            العملة:
+            <strong>{{ settings.defaultCurrency }}</strong>
+
+            · المنطقة الزمنية:
+            <strong>{{ settings.timeZone }}</strong>
+          </p>
+
+          <p>
+            الدخول: {{ settings.checkInTime }}
+            · الخروج: {{ settings.checkOutTime }}
+          </p>
+
+        </section>
+      }
+
+      <div class="actions">
+ <a
+          class="secondary"
+          [routerLink]="['/properties', item.id, 'taxes']"
+  [class.hidden]="!permissions.canViewProperties()"
+        >
+          عرض ضرائب العقار
+        </a>
+        <a
+          class="secondary"
+          [routerLink]="['/properties', item.id, 'room-types']"
+  [class.hidden]="!permissions.canViewRoomTypes()"
+        >
+          عرض  انواع الغرف  العقار
+        </a>
+        @if(permissions.canViewRooms()) {
+                    <a
+                      class="secondary"
+                     [routerLink]="['/properties',item.id, 'rooms']"
+                    >
+                      عرض الغرف
+        </a>}
+        <a
+  class="secondary"
+  [routerLink]="['/properties', item.id, 'cancellation-policies']"
+  [class.hidden]="!permissions.canViewProperties()"
+
+>
+  عرض سياسات الإلغاء
+</a>
+      <a
+  class="secondary"
+  [routerLink]="['/properties', item.id, 'deposit-policies']"
+  [class.hidden]="!permissions.canViewProperties()"
+
+>
+  عرض سياسات المقدم
+</a> 
+<a
+  class="secondary"
+    [class.hidden]="!permissions.canViewReservations()"
+
+  [routerLink]="['/reservations']"
+  
+  [queryParams]="{propertyId: item.id }"
+>
+  عرض الحجوزات
+</a><a
+  class="secondary"
+    [class.hidden]="!permissions.canviewservices()"
+
+  [routerLink]="['/services']"
+  
+  [queryParams]="{propertyId: item.id }"
+>
+  عرض الخدمات
+</a>
+  <a
+  class="secondary"
+  routerLink="/users"
+  [queryParams]="{ propertyId: item.id }"
+  [class.hidden]="!permissions.canViewUsers()"
+>
+  موظفون العقار
+</a>
+         <a class="secondary" [routerLink]="['/properties', item.id, 'guests']"
+          [class.hidden]="!permissions.canViewGuests()">الضيوف</a>
+        <a class="secondary" [routerLink]="['/properties', item.id, 'rate-plans']"
+         [class.hidden]="!permissions.canViewRatePlans()">خطط الأسعار</a>
+        <a
+          class="secondary"
+          [routerLink]="['/properties', item.id, 'settings']"
+  [class.hidden]="!permissions.canViewProperties()"
+
+        >
+          الإعدادات
+        </a>
+         
+        <a
+          class="primary"
+          [routerLink]="['/properties', item.id, 'edit']"
+  [class.hidden]="!permissions.canUpdateProperty()"
+        >
+          تعديل
+        </a>
+
+        @if (item.status === PropertyStatus.Active) {
+          <button
+            class="danger"
+            type="button"
+            [disabled]="
+              actionId() === item.id ||
+              !permissions.canDeactivateProperty()
+            "
+            (click)="deactivate()"
+          >
+            تعطيل
+          </button>
+        } @else {
+          <button
+            class="activate"
+            type="button"
+            [disabled]="
+              actionId() === item.id ||
+              !permissions.canActivateProperty()
+            "
+            (click)="activate()"
+          >
+            تفعيل
+          </button>
+        }
+
+      </div>
+
+    </section>
+  }
+
+</main>

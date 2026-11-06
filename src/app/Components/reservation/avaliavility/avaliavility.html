@@ -1,0 +1,446 @@
+<main
+  class="availability-page"
+  [class.embedded-page]="embedded()"
+  dir="rtl"
+>
+  @if (!embedded()) {
+    <div
+      class="page-heading d-flex justify-content-between align-items-end flex-wrap gap-3"
+    >
+      <div>
+        <span class="eyebrow">
+          Availability search
+        </span>
+
+        <h1>بحث التوافر</h1>
+
+        <p>
+          اختر Rate Plan ثم أضف الغرفة إلى نموذج الحجز.
+        </p>
+      </div>
+
+      <a
+        routerLink="/reservations"
+        class="btn btn-light"
+      >
+        العودة للحجوزات
+      </a>
+    </div>
+  }
+
+  <section
+    class="search-card card border-0 shadow-sm"
+  >
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+
+        <!-- Property ID -->
+        <div class="col-12 col-md-3">
+          <label>Property ID</label>
+
+          @if (isadmin()) {
+            <input
+              class="form-control"
+              type="number"
+              min="1"
+              [ngModel]="
+                standaloneRequest().propertyId
+              "
+              [ngModelOptions]="{
+                standalone: true
+              }"
+              (ngModelChange)="
+                onPropertyIdChange($event)
+              "
+            />
+          } @else {
+            <input
+              class="form-control"
+              type="number"
+              [value]="
+                standaloneRequest().propertyId
+              "
+              disabled
+            />
+          }
+        </div>
+
+        <!-- Check-in -->
+        <div class="col-6 col-md-3">
+          <label>تاريخ الوصول</label>
+
+          <input
+            class="form-control"
+            type="date"
+            [ngModel]="
+              standaloneRequest().checkInDate
+            "
+            [ngModelOptions]="{
+              standalone: true
+            }"
+            (ngModelChange)="
+              updateStandalone(
+                'checkInDate',
+                $event
+              )
+            "
+          />
+        </div>
+
+        <!-- Check-out -->
+        <div class="col-6 col-md-3">
+          <label>تاريخ المغادرة</label>
+
+          <input
+            class="form-control"
+            type="date"
+            [ngModel]="
+              standaloneRequest().checkOutDate
+            "
+            [ngModelOptions]="{
+              standalone: true
+            }"
+            (ngModelChange)="
+              updateStandalone(
+                'checkOutDate',
+                $event
+              )
+            "
+          />
+        </div>
+
+        <!-- Adults -->
+        <div class="col-6 col-md-1">
+          <label>بالغون</label>
+
+          <input
+            class="form-control"
+            type="number"
+            min="1"
+            [ngModel]="
+              standaloneRequest().adults
+            "
+            [ngModelOptions]="{
+              standalone: true
+            }"
+            (ngModelChange)="
+              updateStandalone(
+                'adults',
+                +$event
+              )
+            "
+          />
+        </div>
+
+        <!-- Children -->
+        <div class="col-6 col-md-1">
+          <label>أطفال</label>
+
+          <input
+            class="form-control"
+            type="number"
+            min="0"
+            [ngModel]="
+              standaloneRequest().children
+            "
+            [ngModelOptions]="{
+              standalone: true
+            }"
+            (ngModelChange)="
+              updateStandalone(
+                'children',
+                +$event
+              )
+            "
+          />
+        </div>
+
+        <!-- Search button -->
+        <div class="col-12 col-md-1">
+          <button
+            class="btn btn-primary w-100"
+            type="button"
+            (click)="search()"
+            [disabled]="loading()"
+          >
+            {{
+              loading()
+                ? '...'
+                : 'بحث'
+            }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="alert alert-danger mt-3">
+      {{ error() }}
+    </div>
+  }
+
+  @if (searched()) {
+    <section
+      class="results-card card border-0 shadow-sm mt-3"
+    >
+      <div
+        class="card-header bg-white border-0 d-flex justify-content-between align-items-center"
+      >
+        <strong>
+          {{ items().length }} غرف متاحة
+        </strong>
+
+        <small class="text-muted">
+          اختر Rate Plan لكل غرفة قبل الإضافة
+        </small>
+      </div>
+
+      <div class="table-responsive">
+        <table
+          class="table availability-table align-middle mb-0"
+        >
+          <thead>
+            <tr>
+              <th>Property</th>
+
+              <th>الغرفة</th>
+              <th>Room Type</th>
+              <th>الإقامة</th>
+              <th>Rate Plan</th>
+              <th>عدد الضيوف</th>
+
+              <th>السعر</th>
+              <th>الإجراء</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              item of items();
+              track item.roomId
+            ) {
+              <tr
+                [class.selected-row]="
+                  selected(item.roomId)
+                "
+              >
+                <td>
+                  <span class="id-badge">
+                    {{ request().propertyId }}
+                  </span>
+                </td>
+
+                <td>
+                  <strong>
+                    {{ item.roomNumber }}
+                  </strong>
+
+                  <small
+                    class="d-block text-muted"
+                  >
+                    Room ID:
+                    {{ item.roomId }}
+                  </small>
+                </td>
+
+                <td>
+                  <strong>
+                    {{ item.roomTypeName }}
+                  </strong>
+
+                  <small
+                    class="d-block text-muted"
+                  >
+                    Type ID:
+                    {{ item.roomTypeId }}
+                  </small>
+                </td>
+<td class="guest-count-cell">
+  <label class="capacity-label">
+    بالغون
+    <span>
+      الحد الأقصى {{ item.maxAdults }}
+    </span>
+
+    <input
+      class="form-control form-control-sm"
+      type="number"
+      min="1"
+      [max]="item.maxAdults"
+      [ngModel]="
+        choiceFor(item.roomId).adults
+      "
+      [ngModelOptions]="{
+        standalone: true
+      }"
+      (ngModelChange)="
+        updateChoice(item.roomId, {
+          adults: clampAdults(
+            $event,
+            item.maxAdults
+          )
+        })
+      "
+      [disabled]="selected(item.roomId)"
+    />
+  </label>
+
+  <label class="capacity-label mt-2">
+    أطفال
+    <span>
+      الحد الأقصى {{ item.maxChildren }}
+    </span>
+
+    <input
+      class="form-control form-control-sm"
+      type="number"
+      min="0"
+      [max]="item.maxChildren"
+      [ngModel]="
+        choiceFor(item.roomId).children
+      "
+      [ngModelOptions]="{
+        standalone: true
+      }"
+      (ngModelChange)="
+        updateChoice(item.roomId, {
+          children: clampChildren(
+            $event,
+            item.maxChildren
+          )
+        })
+      "
+      [disabled]="selected(item.roomId)"
+    />
+  </label>
+</td>
+
+                <!-- السعر الليلي -->
+                <td>
+                  <small>
+                    {{ item.nights }} ليالٍ
+                  </small>
+
+                  <strong class="d-block">
+                    {{
+                      displayNightlyRate(item)
+                        | number:'1.2-2'
+                    }}
+                  </strong>
+
+                  <small
+                    class="d-block text-muted"
+                  >
+                    سعر الليلة
+                  </small>
+                </td>
+
+                <!-- Rate Plan -->
+                <td class="select-cell">
+                  <select
+                    class="form-select form-select-sm"
+                    [disabled]="
+                      selected(item.roomId)
+                    "
+                    [ngModel]="
+                      choiceFor(item.roomId)
+                        .ratePlanId
+                    "
+                    [ngModelOptions]="{
+                      standalone: true
+                    }"
+                    (ngModelChange)="
+                      updateChoice(
+                        item.roomId,
+                        {
+                          ratePlanId: +$event
+                        }
+                      )
+                    "
+                  >
+                    <option [ngValue]="0">
+                      اختر الخطة
+                    </option>
+
+                    @for (
+                      plan of ratePlansFor(
+                        item.roomTypeId
+                      );
+                      track plan.id
+                    ) {
+                      <option
+                        [ngValue]="plan.id"
+                      >
+                        {{ plan.name }}
+                        —
+                        {{
+                          ratePlanPrice(plan)
+                            | number:'1.2-2'
+                        }}_
+               from: {{ displayValidFrom(plan) | date:'dd/MM/yyyy' }}
+to: {{ displayValidTo(plan) | date:'dd/MM/yyyy' }}
+                      </option>
+                    }
+                  </select>
+                </td>
+
+                <!-- الإجمالي -->
+                <td>
+                  <strong class="price">
+                    {{
+                      displayTotalAmount(item)
+                        | number:'1.2-2'
+                    }}
+                  </strong>
+
+                  <small
+                    class="d-block text-muted"
+                  >
+                    الإجمالي المتوقع
+                  </small>
+                </td>
+
+                <!-- الإجراء -->
+                <td>
+                  <button
+                    class="btn btn-sm add-button"
+                    [class.btn-success]="
+                      selected(item.roomId)
+                    "
+                    [class.btn-primary]="
+                      !selected(item.roomId)
+                    "
+                    type="button"
+                    [disabled]="
+                      selected(item.roomId)
+                    "
+                    (click)="
+                      selectRoom(item)
+                    "
+                  >
+                    {{
+                      selected(item.roomId)
+                        ? 'تمت الإضافة'
+                        : 'إضافة'
+                    }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+              <td
+  colspan="8"
+  class="empty"
+>
+  لا توجد غرف متاحة بهذه الشروط.
+</td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</main>

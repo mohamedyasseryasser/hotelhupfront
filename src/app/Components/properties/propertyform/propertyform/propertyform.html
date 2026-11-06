@@ -1,0 +1,241 @@
+<main class="form-page" dir="rtl">
+  <a
+    class="back"
+    routerLink="/properties"
+  >
+    ← العودة إلى العقارات
+  </a>
+
+  <section class="card">
+    <p class="eyebrow">
+      HOTELHUP PMS / PROPERTIES
+    </p>
+
+    <h1>
+      {{ isEdit() ? 'تعديل عقار' : 'إضافة عقار جديد' }}
+    </h1>
+
+    <p class="muted">
+      {{
+        isEdit()
+          ? 'بيانات العقار فقط؛ الإعدادات لها شاشة مستقلة.'
+          : 'أدخل بيانات العقار وإعداداته الأساسية.'
+      }}
+    </p>
+
+    @if (loading()) {
+      <p class="state">
+        جارٍ تحميل العقار...
+      </p>
+    } @else {
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        novalidate
+      >
+        <h2>
+          بيانات العقار
+        </h2>
+
+        <div class="grid">
+          <label>
+            الاسم
+
+            <input
+              formControlName="name"
+            />
+
+            @if (
+              form.controls.name.invalid &&
+              form.controls.name.touched
+            ) {
+              <small>
+                الاسم مطلوب من 2 إلى 200 حرف.
+              </small>
+            }
+          </label>
+
+          <label>
+            الكود
+
+            <input
+              formControlName="code"
+            />
+
+            @if (
+              form.controls.code.invalid &&
+              form.controls.code.touched
+            ) {
+              <small>
+                الكود مطلوب من 2 إلى 50 حرفًا.
+              </small>
+            }
+          </label>
+
+          <label class="full">
+            الوصف
+
+            <textarea
+              formControlName="description"
+              rows="3"
+            ></textarea>
+          </label>
+
+          @if (isEdit()) {
+            <label class="full">
+              سبب التعديل
+
+              <input
+                formControlName="reason"
+              />
+
+              @if (
+                form.controls.reason.invalid &&
+                form.controls.reason.touched
+              ) {
+                <small>
+                  سبب التعديل مطلوب.
+                </small>
+              }
+            </label>
+          }
+        </div>
+
+        @if (!isEdit()) {
+          <h2 class="section-title">
+            الإعدادات الأساسية
+          </h2>
+
+          <div class="grid">
+            <label>
+              العملة
+
+              <input
+                formControlName="currency"
+              />
+            </label>
+
+            <label>
+              Time Zone
+
+              <input
+                formControlName="timeZone"
+              />
+            </label>
+
+            <label>
+              وقت تسجيل الدخول
+
+              <input
+                type="time"
+                formControlName="checkInTime"
+              />
+            </label>
+
+            <label>
+              وقت تسجيل الخروج
+
+              <input
+                type="time"
+                formControlName="checkOutTime"
+              />
+            </label>
+
+            <label>
+              إغلاق يوم الفندق
+
+              <input
+                type="time"
+                formControlName="hotelDayClosingTime"
+              />
+            </label>
+
+            <label class="toggle">
+              <input
+                type="checkbox"
+                formControlName="allowEarlyCheckIn"
+              />
+
+              السماح بالدخول المبكر
+            </label>
+
+            <label class="toggle">
+              <input
+                type="checkbox"
+                formControlName="requireDepositForReservation"
+              />
+
+              طلب إيداع للحجز
+            </label>
+
+            <label class="toggle">
+              <input
+                type="checkbox"
+                formControlName="requireFullPaymentBeforeCheckOut"
+              />
+
+              طلب الدفع الكامل قبل المغادرة
+            </label>
+
+            <label class="toggle">
+              <input
+                type="checkbox"
+                formControlName="allowOverpayment"
+              />
+
+              السماح بالدفع الزائد
+            </label>
+
+            <label class="toggle">
+              <input
+                type="checkbox"
+                formControlName="requireInspectionBeforeAvailable"
+              />
+
+              طلب فحص الغرفة
+            </label>
+          </div>
+        }
+
+        <div class="actions">
+          <button
+            class="primary"
+            type="submit"
+            [disabled]="saving()"
+          >
+            {{
+              saving()
+                ? 'جارٍ الحفظ...'
+                : 'حفظ'
+            }}
+          </button>
+
+          <a
+            class="secondary"
+            routerLink="/properties"
+          >
+            إلغاء
+          </a>
+        </div>
+      </form>
+    }
+
+    @if (error()) {
+      <p
+        class="error"
+        role="alert"
+      >
+        {{ error() }}
+      </p>
+    }
+
+    @if (success()) {
+      <p
+        class="success"
+        role="status"
+      >
+        {{ success() }}
+      </p>
+    }
+  </section>
+</main>

@@ -1,0 +1,272 @@
+ <main class="page" dir="rtl">
+ <button (click)="logout()">logout</button>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">
+        HOTELHUP PMS / PROPERTIES
+      </p>
+
+      <h1>
+        إدارة العقارات
+      </h1>
+
+      <p class="muted">
+        إدارة بيانات العقارات وإعداداتها وحالتها التشغيلية.
+      </p>                                                     
+    </div>
+
+    <a                                                    
+      class="primary"                                  
+      routerLink="/properties/create"
+  [class.hidden]="!permissions.canCreateProperty()"
+    >
+      + عقار جديد
+    </a>
+  </header>
+
+  <section
+    class="card filters"
+    [formGroup]="filters"
+  >
+    <div class="filter-grid">
+
+      <label>
+        بحث
+
+        <input
+          formControlName="search"
+          placeholder="الاسم أو الكود"
+        />
+      </label>
+
+      <label>
+        الحالة
+
+        <select formControlName="status">
+          <option value="all">الكل</option>
+          <option value="0">نشط</option>
+          <option value="1">غير نشط</option>
+        </select>
+      </label>
+
+      <label>
+        ترتيب حسب
+
+        <select formControlName="sortBy">
+          <option value="Name">الاسم</option>
+          <option value="Code">الكود</option>
+          <option value="CreatedAt">تاريخ الإنشاء</option>
+          <option value="Status">الحالة</option>
+        </select>
+      </label>
+
+      <label class="check">
+        <input
+          type="checkbox"
+          formControlName="descending"
+        />
+
+        تنازلي
+      </label>
+
+    </div>
+
+    <div class="filter-actions">
+      <button
+        class="primary"
+        type="button"
+        (click)="loadProperties()"
+      >
+        بحث
+      </button>
+
+      <button
+        class="secondary"
+        type="button"
+        (click)="resetFilters()"
+      >
+        مسح
+      </button>
+    </div>
+  </section>
+
+  @if (notice()) {
+    <p class="notice">
+      {{ notice() }}
+    </p>
+  }
+
+  @if (error()) {
+    <p
+      class="error"
+      role="alert"
+    >
+      {{ error() }}
+    </p>
+  }
+
+  <section class="card table-card">
+
+    @if (loading()) {
+      <div class="state">
+        جارٍ تحميل العقارات...
+      </div>
+    } @else if (page().items.length === 0) {
+      <div class="state">
+        <strong>
+          لا توجد عقارات
+        </strong>
+
+        <span>
+          No properties found.
+        </span>
+      </div>
+    } @else {                                                    
+
+      <div class="table-wrap">
+        <table>
+
+          <thead>
+            <tr>
+              <th>العقار</th>
+              <th>الكود</th>
+              <th>الحالة</th>
+              <th>الضرائب</th>
+              <th>الإلغاء</th>
+              <th>الإيداع</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of page().items; track item.id) {
+              <tr>
+
+                <td>
+                  <a
+                    class="property-link"
+                    [routerLink]="['/properties', item.id]"
+                  >
+                    {{ item.name }}
+                  </a>
+
+                  <small>
+                    {{ item.description || '—' }}
+                  </small>
+                </td>
+
+                <td>
+                  {{ item.code }}
+                </td>
+
+                <td>
+               <span class="status" [class.inactive]="item.status !== PropertyStatus.Active">
+  {{ item.status === PropertyStatus.Active ? 'نشط' : 'غير نشط' }}
+</span>
+
+                </td>
+
+                <td>
+                  {{ item.activeTaxes }}
+                </td>
+
+                <td>
+                  {{ item.activeCancellationPolicies }}           
+                </td>
+
+                <td>
+                  {{ item.activeDepositPolicies }}
+                </td>
+
+                <td class="actions">
+
+                  <a
+                    [routerLink]="['/properties', item.id]"
+                    [class.hidden]="!permissions.canViewProperties()"
+                  >
+                    عرض
+                  </a>
+
+                  <a
+                    [routerLink]="['/properties', item.id, 'edit']"
+                    [class.hidden]="!permissions.canUpdateProperty()"
+                  >
+                    تعديل
+                  </a>
+                                                        
+                  <a
+                    [routerLink]="['/properties', item.id, 'settings']"
+                    [class.hidden]="!permissions.canViewProperties()"
+
+                  >
+                    الإعدادات
+                  </a>
+
+                  @if (item.status === PropertyStatus.Active) {                              
+                    <button
+                      type="button"
+                      [disabled]="                            
+                        actionId() === item.id ||                
+    !permissions.canDeactivateProperty()
+                      "
+                      (click)="deactivate(item)"              
+                    >
+                      تعطيل
+                    </button>
+                  } @else {
+                    <button
+                      type="button"                           
+                      class="activate"        
+                      [disabled]="
+                        actionId() === item.id ||
+    !permissions.canActivateProperty()
+                      "
+                      (click)="activate(item)"          
+                    >
+                      تفعيل
+                    </button>
+                  }
+
+                </td>
+              </tr>
+            }
+          </tbody>
+
+        </table>
+      </div>
+
+      <footer class="pager">
+
+        <span>
+          {{ page().totalCount }} عقار
+          ·
+          صفحة {{ page().page }} من {{ page().totalPages }}
+        </span>
+
+        <div>
+          <button
+            type="button"
+            [disabled]="page().page <= 1 || loading()"
+            (click)="loadProperties(page().page - 1)"
+          >
+            السابق
+          </button>
+
+          <button
+            type="button"
+            [disabled]="
+              page().page >= page().totalPages ||     
+              loading()
+            "
+            (click)="loadProperties(page().page + 1)"
+          >
+            التالي
+          </button>
+        </div>
+
+      </footer>
+    }
+
+  </section>
+
+</main>

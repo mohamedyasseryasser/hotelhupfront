@@ -1,0 +1,40 @@
+<main class="tax-page" dir="rtl">
+  <a class="back-link" [routerLink]="['/properties', propertyId(), 'taxes']">← العودة إلى قائمة الضرائب</a>
+  @if (loading()) {
+    <section class="panel state">جارٍ تحميل تفاصيل الضريبة...</section>
+  } @else if (error() && !tax()) {
+    <p class="alert error" role="alert">{{ error() }}</p>
+    <button class="button secondary" type="button" (click)="loadTax()">إعادة المحاولة</button>
+  } @else if (tax(); as item) {
+    <section class="panel">
+      <header class="heading">
+        <div><p class="eyebrow">TAX DETAILS · {{ item.code }}</p><h1>{{ item.name }}</h1></div>
+        <span class="status" [class.inactive]="!item.isActive">{{ item.isActive ? 'نشطة' : 'غير نشطة' }}</span>
+      </header>
+      @if (error()) { <p class="alert error" role="alert">{{ error() }}</p> }
+      @if (success()) { <p class="alert success" role="status">{{ success() }}</p> }
+      <dl class="detail-list">
+        <dt>نوع الضريبة</dt><dd>{{ taxTypeLabel(item.type) }}</dd>
+        <dt>القيمة</dt><dd>{{ item.rate | number:'1.0-2' }}{{ item.type === taxType.Percentage ? '%' : '' }}</dd>
+        <dt>طريقة الاحتساب</dt><dd>{{ item.isInclusive ? 'شاملة ضمن السعر' : 'تضاف إلى السعر' }}</dd>
+        <dt>بداية السريان</dt><dd>{{ item.validFrom | date:'medium' }}</dd>
+        <dt>نهاية السريان</dt><dd>{{ item.validTo ? (item.validTo | date:'medium') : 'بلا تاريخ انتهاء' }}</dd>
+        <dt>تاريخ الإنشاء</dt><dd>{{ item.createdAt | date:'medium' }}</dd>
+        @if (item.createdBy) { <dt>أُنشئت بواسطة</dt><dd>{{ item.createdBy }}</dd> }
+        @if (item.updatedAt) { <dt>آخر تحديث</dt><dd>{{ item.updatedAt | date:'medium' }}</dd> }
+        @if (item.updatedBy) { <dt>حُدثت بواسطة</dt><dd>{{ item.updatedBy }}</dd> }
+      </dl>
+      <div class="actions">
+        @if (permissions.canUpdateProperty()) {
+          <button class="button primary" type="button" (click)="editTax()">تعديل</button>
+          @if (item.isActive) {
+            <button class="button danger" type="button" [disabled]="actionRunning()" (click)="deactivateTax()">تعطيل الضريبة</button>
+          } @else {
+            <button class="button activate" type="button" [disabled]="actionRunning()" (click)="activateTax()">تفعيل الضريبة</button>
+          }
+        }
+        <a class="button secondary" [routerLink]="['/properties', propertyId(), 'taxes']">قائمة الضرائب</a>
+      </div>
+    </section>
+  }
+</main>

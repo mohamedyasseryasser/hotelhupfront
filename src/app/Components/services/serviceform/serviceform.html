@@ -1,0 +1,92 @@
+<main class="page">
+  <a routerLink="/services"
+  [queryParams]="{ propertyId: propertyId() }"
+  >
+    ← الخدمات
+  </a>
+
+  <section class="card p-4 mt-3">
+    <h1>
+      {{
+        id()
+          ? 'تعديل خدمة'
+          : 'إضافة خدمة'
+      }}
+    </h1>
+
+    @if (error()) {
+      <div class="alert alert-danger">
+        {{ error() }}
+      </div>
+    }
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+    >
+      <div class="grid">
+        <label>
+          الاسم
+
+          <input
+            class="form-control"
+            formControlName="name"
+          />
+        </label>
+
+        <label>
+          التصنيف
+
+          <input
+            class="form-control"
+            formControlName="revenueCategory"
+          />
+        </label>
+
+        <label>
+          السعر
+
+          <input
+            class="form-control"
+            type="number"
+            min="0.01"
+            formControlName="price"
+          />
+        </label>
+
+        <label>
+          الضريبة
+
+          <input
+            class="form-control"
+            type="number"
+            min="0"
+            formControlName="tax"
+          />
+        </label>
+      </div>
+
+      <label class="d-block mt-3">
+        الوصف
+
+        <textarea
+          class="form-control"
+          rows="4"
+          formControlName="description"
+        ></textarea>
+      </label>
+
+      <button
+        class="btn btn-primary mt-3"
+        type="submit"
+        [disabled]="saving()"
+      >
+        {{
+          saving()
+            ? 'جارٍ الحفظ...'
+            : 'حفظ'
+        }}
+      </button>
+    </form>
+  </section>
+</main>

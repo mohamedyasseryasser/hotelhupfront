@@ -1,0 +1,162 @@
+
+<main class="page" dir="rtl">
+  <a
+    class="back"
+    [routerLink]="['/properties', propertyId()]"
+  >
+    ← العودة إلى العقار
+  </a>
+
+  <header class="heading">
+    <div>
+      <p class="eyebrow">ROOM TYPES</p>
+
+      <h1>أنواع الغرف</h1>
+
+      <p class="muted">
+        تعريف أنواع الغرف والطاقة الاستيعابية والأسعار الأساسية.
+      </p>
+    </div>
+
+    @if (permissions.canCreateRoomType()) {
+      <button
+        class="button primary"
+        (click)="create()"
+      >
+        ＋ إضافة نوع غرفة
+      </button>
+    }
+  </header>
+
+  @if (error()) {
+    <p class="alert error">
+      {{ error() }}
+    </p>
+  }
+
+  @if (success()) {
+    <p class="alert success">
+      {{ success() }}
+    </p>
+  }
+
+  <section class="panel">
+    <div class="section-heading">
+      <label>
+        <input
+          type="checkbox"
+          [checked]="includeInactive()"
+          (change)="includeInactive.set($any($event.target).checked); load()"
+        />
+        عرض غير النشطة
+      </label>
+
+      <button
+        class="button secondary"
+        (click)="load()"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'جارٍ التحديث...' : 'تحديث' }}
+      </button>
+    </div>
+
+    @if (loading() && types().length === 0) {
+      <div class="empty">
+        جارٍ تحميل أنواع الغرف...
+      </div>
+    } @else if (types().length === 0) {
+      <div class="empty">
+        <strong>لا توجد أنواع غرف</strong>
+        <span>أضف نوع غرفة للبدء.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>الوصف</th>
+              <th>الطاقة الاستيعابية</th>
+              <th>السعر الأساسي</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (type of types(); track type.id) {
+              <tr>
+                <td>
+                  <strong>{{ type.name }}</strong>
+                  <small>#{{ type.id }}</small>
+                </td>
+
+                <td>
+                  {{ type.description || '—' }}
+                </td>
+
+                <td>
+                  {{ type.maxAdults }} بالغ ·
+                  {{ type.maxChildren }} طفل
+                </td>
+
+                <td>
+                  {{ type.basePrice | number: '1.0-2' }}
+                </td>
+
+                <td>
+                  <span
+                    class="status"
+                    [class.inactive]="!isActive(type)"
+                  >
+                    {{ isActive(type) ? 'نشط' : 'غير نشط' }}
+                  </span>
+                </td>
+
+                <td class="row-actions">
+                  <button
+                    class="text-button"
+                    (click)="view(type)"
+                  >
+                    عرض
+                  </button>
+
+                  @if (permissions.canUpdateRoomType()) {
+                    <button
+                      class="text-button"
+                      (click)="edit(type)"
+                    >
+                      تعديل
+                    </button>
+                  }
+
+                  @if (isActive(type)) {
+                    @if (permissions.canDeactivateRoomType()) {
+                      <button
+                        class="text-button danger-text"
+                        [disabled]="actionId() === type.id"
+                        (click)="deactivate(type)"
+                      >
+                        تعطيل
+                      </button>
+                    }
+                  } @else {
+                    @if (permissions.canUpdateRoomType()) {
+                      <button
+                        class="text-button"
+                        [disabled]="actionId() === type.id"
+                        (click)="activateRoomType(type)"
+                      >
+                        تفعيل
+                      </button>
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>

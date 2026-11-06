@@ -1,0 +1,291 @@
+<main class="page">
+  <a
+    [routerLink]="[
+      '/folios',
+      folioId
+    ]"
+      [queryParams]="{ propertyId: propertyId() }"
+
+  >
+    ← العودة إلى Folio
+  </a>
+
+  <section class="card p-4 mt-3">
+    <h1>
+      إضافة بند إلى Folio
+    </h1>
+
+    <p class="text-muted mb-3">
+      Property ID:
+      <strong>
+        {{ propertyId() }}
+      </strong>
+    </p>
+
+    @if (error()) {
+      <div class="alert alert-danger">
+        {{ error() }}
+      </div>
+    }
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+    >
+      <div class="grid">
+        <!-- نوع البند -->
+        <label>
+          نوع البند
+
+          <select
+            class="form-select"
+            formControlName="type"
+          >
+            <option
+              [ngValue]="types.Service"
+            >
+              خدمة
+            </option>
+
+            <option
+              [ngValue]="types.Fee"
+            >
+              رسوم
+            </option>
+
+            <option
+              [ngValue]="types.Adjustment"
+            >
+              تعديل
+            </option>
+
+            <option
+              [ngValue]="types.Tax"
+            >
+              ضريبة
+            </option>
+
+            <option
+              [ngValue]="types.Discount"
+            >
+              خصم
+            </option>
+          </select>
+        </label>
+
+        <!-- اختيار الخدمة يظهر فقط إذا كان النوع Service -->
+        @if (isServiceType()) {
+          <label>
+            الخدمة
+
+            <select
+              class="form-select"
+              formControlName="serviceId"
+              (change)="onServiceChange($event)"
+            >
+              <option
+                [ngValue]="null"
+              >
+                اختر الخدمة
+              </option>
+
+              @for (
+                service of services();
+                track service.id
+              ) {
+                <option
+                  [value]="service.id"
+                >
+                  {{ service.name }}
+                  —
+                  {{
+                    service.price
+                      | number:'1.2-2'
+                  }}
+                </option>
+              }
+            </select>
+
+            @if (loadingServices()) {
+              <small class="text-muted">
+                جارٍ تحميل خدمات العقار...
+              </small>
+            }
+
+            @if (
+              !loadingServices() &&
+              services().length === 0
+            ) {
+              <small class="text-danger">
+                لا توجد خدمات فعالة لهذا العقار.
+              </small>
+            }
+          </label>
+        }
+
+        <!-- السعر -->
+        <label>
+          السعر
+
+          <input
+            class="form-control"
+            type="number"
+            min="0.01"
+            formControlName="amount"
+            [readonly]="isServiceSelected()"
+          />
+
+          @if (isServiceSelected()) {
+            <small class="text-muted">
+              السعر تم تحميله من الخدمة ولا يمكن تعديله.
+            </small>
+          }
+
+          @if (
+            form.controls.amount.touched &&
+            form.controls.amount.invalid
+          ) {
+            <small class="text-danger">
+              يجب إدخال سعر أكبر من صفر.
+            </small>
+          }
+        </label>
+
+        <!-- الضريبة -->
+        <label>
+          الضريبة
+
+          <input
+            class="form-control"
+            type="number"
+            min="0"
+            formControlName="tax"
+            [readonly]="isServiceSelected()"
+          />
+
+          @if (isServiceSelected()) {
+            <small class="text-muted">
+              الضريبة تم تحميلها من الخدمة ولا يمكن تعديلها.
+            </small>
+          }
+
+          @if (
+            form.controls.tax.touched &&
+            form.controls.tax.invalid
+          ) {
+            <small class="text-danger">
+              قيمة الضريبة لا يمكن أن تكون سالبة.
+            </small>
+          }
+        </label>
+
+        <!-- Service ID للعرض فقط -->
+        @if (isServiceType()) {
+          <label>
+            Service ID
+
+            <input
+              class="form-control"
+              type="number"
+              [value]="
+                form.controls.serviceId.value ?? ''
+              "
+              readonly
+            />
+          </label>
+        }
+
+        <!-- Reference ID يظهر في كل الحالات -->
+        <label>
+          Reference ID
+
+          <input
+            class="form-control"
+            type="text"
+            formControlName="referenceId"
+            placeholder="اختياري"
+          />
+        </label>
+      </div>
+
+      <!-- الوصف يظهر في جميع الحالات -->
+      <label class="d-block mt-3">
+        الوصف
+
+        <textarea
+          class="form-control"
+          rows="4"
+          formControlName="description"
+          placeholder="اكتب وصف البند..."
+        ></textarea>
+      </label>
+
+      <!-- ملخص الخدمة -->
+      @if (isServiceSelected()) {
+        <div class="alert alert-info mt-3">
+          <div>
+            الخدمة:
+            <strong>
+              {{ selectedService()?.name }}
+            </strong>
+          </div>
+
+          <div>
+            سعر الخدمة:
+            <strong>
+              {{
+                selectedService()?.price
+                  | number:'1.2-2'
+              }}
+            </strong>
+          </div>
+
+          <div>
+            ضريبة الخدمة:
+            <strong>
+              {{
+                selectedService()?.tax
+                  | number:'1.2-2'
+              }}
+            </strong>
+          </div>
+
+          <div class="mt-2">
+            مصدر البند الذي سيتم إرساله:
+            <strong>
+              Service
+            </strong>
+          </div>
+        </div>
+      }
+
+      @if (
+        !isServiceType()
+      ) {
+        <div class="alert alert-secondary mt-3">
+          سيتم إرسال مصدر البند:
+          <strong>
+            Manual
+          </strong>
+        </div>
+      }
+
+      <button
+        class="btn btn-primary mt-3"
+        type="submit"
+        [disabled]="
+          form.invalid ||
+          !hasRequiredValues() ||
+          saving() ||
+          loadingServices()
+        "
+      >
+        {{
+          saving()
+            ? 'جارٍ الحفظ...'
+            : 'حفظ البند'
+        }}
+      </button>
+    </form>
+  </section>
+</main>

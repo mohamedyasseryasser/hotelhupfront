@@ -1,0 +1,137 @@
+<main class="policy-page" dir="rtl">
+  <a class="back-link" [routerLink]="['/properties', propertyId(), 'deposit-policies']"
+    >← العودة إلى السياسات</a
+  >
+
+  @if (loading() && !policy()) {
+    <section class="panel state">جارٍ تحميل سياسة الإيداع...</section>
+  } @else if (error() && !policy()) {
+    <p class="alert error" role="alert">{{ error() }}</p>
+    <button class="button secondary" type="button" (click)="loadPolicy()">إعادة المحاولة</button>
+  } @else if (policy(); as item) {
+    <section class="panel summary-panel">
+      <header class="heading">
+        <div>
+          <p class="eyebrow">سياسة الإيداع · {{ item.id }}</p>
+          @if (currentVersion(item); as version) {
+            <h1>{{ version.name }}</h1>
+          }
+          <p class="muted">العقار رقم {{ item.propertyId }}</p>
+        </div>
+        <span class="status" [class.inactive]="!item.isActive">
+          {{ item.isActive ? 'نشطة' : 'غير نشطة' }}
+        </span>
+      </header>
+
+      @if (error()) {
+        <p class="alert error" role="alert">{{ error() }}</p>
+      }
+      @if (success()) {
+        <p class="alert success" role="status">{{ success() }}</p>
+      }
+
+      @if (currentVersion(item); as version) {
+        <div class="version-heading">
+          <div>
+            <p class="eyebrow">الإصدار الحالي</p>
+            <h2>الإصدار {{ version.version }}</h2>
+          </div>
+          <span class="version-count">{{ item.versions.length }} إصدار</span>
+        </div>
+        <dl class="detail-list">
+          <dt>نوع الإيداع</dt>
+          <dd>{{ depositTypeLabel(version.type) }}</dd>
+          <dt>قيمة الإيداع</dt>
+          <dd>{{ amountLabel(version) }}</dd>
+          <dt>بداية السريان</dt>
+          <dd>{{ version.validFrom | date: 'medium' }}</dd>
+          <dt>نهاية السريان</dt>
+          <dd>{{ version.validTo ? (version.validTo | date: 'medium') : 'مفتوح' }}</dd>
+          <dt>حالة الإصدار</dt>
+          <dd>{{ version.isActive ? 'نشط' : 'غير نشط' }}</dd>
+          <dt>تاريخ إنشاء الإصدار</dt>
+          <dd>{{ version.createdAt | date: 'medium' }}</dd>
+          <dt>أنشأه</dt>
+          <dd>{{ version.createdBy || '—' }}</dd>
+          @if (version.updatedAt) {
+            <dt>آخر تحديث</dt>
+            <dd>{{ version.updatedAt | date: 'medium' }}</dd>
+          }
+        </dl>
+      } @else {
+        <p class="alert error">لا يوجد إصدار حالي لعرضه.</p>
+      }
+
+      <div class="actions">
+        @if (permissions.canUpdateProperty()) {
+          <button class="button primary" type="button" (click)="editPolicy()">
+            إنشاء إصدار جديد
+          </button>
+          @if (item.isActive) {
+            <button
+              class="button danger"
+              type="button"
+              [disabled]="actionRunning()"
+              (click)="deactivatePolicy()"
+            >
+              تعطيل السياسة
+            </button>
+          } @else {
+            <button
+              class="button activate"
+              type="button"
+              [disabled]="actionRunning()"
+              (click)="activatePolicy()"
+            >
+              تفعيل السياسة
+            </button>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">سجل الإصدارات</p>
+          <h2>كل الإصدارات</h2>
+        </div>
+      </div>
+      @if (item.versions.length === 0) {
+        <p class="muted">لا يوجد سجل إصدارات.</p>
+      } @else {
+        <div class="version-list">
+          @for (version of item.versions; track version.id) {
+            <article class="version-card">
+              <header>
+                <h3>{{ version.name }} — الإصدار {{ version.version }}</h3>
+                <span
+                  class="version-badge"
+                  [class.current]="version.version === item.currentVersion"
+                >
+                  {{ version.version === item.currentVersion ? 'الحالي' : 'سابق' }}
+                </span>
+              </header>
+              <p class="muted">
+                {{ version.validFrom | date: 'medium' }} —
+                {{ version.validTo ? (version.validTo | date: 'medium') : 'مفتوح' }}
+              </p>
+              <div class="version-facts">
+                <span
+                  >النوع: <strong>{{ depositTypeLabel(version.type) }}</strong></span
+                >
+                <span
+                  >القيمة: <strong>{{ amountLabel(version) }}</strong></span
+                >
+                <span
+                  >الحالة: <strong>{{ version.isActive ? 'نشط' : 'غير نشط' }}</strong></span
+                >
+              </div>
+              <p class="muted">تاريخ الإنشاء: {{ version.createdAt | date: 'medium' }}</p>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>

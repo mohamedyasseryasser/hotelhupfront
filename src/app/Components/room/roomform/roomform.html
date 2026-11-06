@@ -1,0 +1,106 @@
+<main class="page" dir="rtl">
+  <a
+    class="back"
+    [routerLink]="['/properties', propertyId(), 'rooms']"
+  >
+    ← العودة إلى الغرف
+  </a>
+
+  <section class="card">
+    <p class="eyebrow">إدارة الغرف</p>
+
+    <h1>
+      {{ room() ? 'تعديل غرفة' : 'إضافة غرفة' }}
+    </h1>
+
+    <p class="muted">
+      أدخل بيانات الغرفة الأساسية والسعر ونوع الغرفة.
+    </p>
+
+    @if (error()) {
+      <p class="alert error">
+        {{ error() }}
+      </p>
+    }
+
+    @if (loading()) {
+      <div class="state">
+        جارٍ تحميل الغرفة...
+      </div>
+    } @else {
+      <form
+        [formGroup]="form"
+        (ngSubmit)="save()"
+        novalidate
+      >
+        <div class="form-grid">
+          <label>
+            رقم الغرفة
+            <span class="required">*</span>
+
+            <input
+              formControlName="roomNumber"
+              maxlength="20"
+              placeholder="مثال: 101"
+            />
+
+            @if (
+              form.controls.roomNumber.touched &&
+              form.controls.roomNumber.invalid
+            ) {
+              <small class="field-error">
+                رقم الغرفة مطلوب وبحد أقصى 20 حرفًا.
+              </small>
+            }
+          </label>
+
+          <label>
+            نوع الغرفة
+            <span class="required">*</span>
+
+            <select formControlName="roomTypeId">
+              <option [ngValue]="0">
+                اختر نوع الغرفة
+              </option>
+
+              @for (type of types(); track type.id) {
+                <option [ngValue]="type.id">
+                  {{ type.name }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <label>
+            السعر لكل ليلة
+            <span class="required">*</span>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              formControlName="pricePerNight"
+            />
+          </label>
+        </div>
+
+        <div class="button-row">
+          <button
+            class="button primary"
+            type="submit"
+            [disabled]="saving()"
+          >
+            {{ saving() ? 'جارٍ الحفظ...' : 'حفظ' }}
+          </button>
+
+          <a
+            class="button secondary"
+            [routerLink]="['/properties', propertyId(), 'rooms']"
+          >
+            إلغاء
+          </a>
+        </div>
+      </form>
+    }
+  </section>
+</main>

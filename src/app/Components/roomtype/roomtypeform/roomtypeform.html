@@ -1,0 +1,120 @@
+<main class="page" dir="rtl">
+  <a
+    class="back"
+    [routerLink]="['/properties', propertyId(), 'room-types']"
+  >
+    ← العودة إلى أنواع الغرف
+  </a>
+
+  <section class="card">
+    <p class="eyebrow">إدارة أنواع الغرف</p>
+
+    <h1>
+      {{ type() ? 'تعديل نوع غرفة' : 'إضافة نوع غرفة' }}
+    </h1>
+
+    <p class="muted">
+      حدد الاسم والطاقة الاستيعابية والسعر الأساسي.
+    </p>
+
+    @if (error()) {
+      <p class="alert error">
+        {{ error() }}
+      </p>
+    }
+
+    @if (loading()) {
+      <div class="state">
+        جارٍ تحميل النوع...
+      </div>
+    } @else {
+      <form
+        [formGroup]="form"
+        (ngSubmit)="save()"
+        novalidate
+      >
+        <div class="form-grid">
+          <label>
+            الاسم
+            <span class="required">*</span>
+
+            <input
+              formControlName="name"
+              maxlength="100"
+            />
+
+            @if (
+              form.controls.name.touched &&
+              form.controls.name.invalid
+            ) {
+              <small class="field-error">
+                الاسم مطلوب وبحد أقصى 100 حرف.
+              </small>
+            }
+          </label>
+
+          <label>
+            أقصى عدد بالغين
+            <span class="required">*</span>
+
+            <input
+              type="number"
+              min="1"
+              formControlName="maxAdults"
+            />
+          </label>
+
+          <label>
+            أقصى عدد أطفال
+            <span class="required">*</span>
+
+            <input
+              type="number"
+              min="0"
+              formControlName="maxChildren"
+            />
+          </label>
+
+          <label>
+            السعر الأساسي
+            <span class="required">*</span>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              formControlName="basePrice"
+            />
+          </label>
+
+          <label class="full">
+            الوصف
+
+            <textarea
+              rows="4"
+              maxlength="500"
+              formControlName="description"
+            ></textarea>
+          </label>
+        </div>
+
+        <div class="button-row">
+          <button
+            class="button primary"
+            type="submit"
+            [disabled]="saving()"
+          >
+            {{ saving() ? 'جارٍ الحفظ...' : 'حفظ' }}
+          </button>
+
+          <a
+            class="button secondary"
+            [routerLink]="['/properties', propertyId(), 'room-types']"
+          >
+            إلغاء
+          </a>
+        </div>
+      </form>
+    }
+  </section>
+</main>

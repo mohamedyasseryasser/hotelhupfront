@@ -1,0 +1,87 @@
+<main class="page">
+  <a routerLink="/services"
+   [queryParams]="{ propertyId: propertyId }"
+  >
+    ← الخدمات
+  </a>
+
+  @if (error()) {
+    <div class="alert alert-danger mt-3">
+      {{ error() }}
+    </div>
+  }
+
+  @if (item(); as service) {
+    <section class="card p-4 mt-3">
+      <div class="toolbar">
+        <h1>
+          {{ service.name }}
+        </h1>
+
+        <button
+          class="btn btn-outline-primary"
+          type="button"
+          (click)="edit()"
+        >
+          تعديل
+        </button>
+      </div>
+
+      <div class="grid">
+        <div>
+          <small>السعر</small>
+
+          <strong>
+            {{
+              service.price
+                | number:'1.2-2'
+            }}
+          </strong>
+        </div>
+
+        <div>
+          <small>الضريبة</small>
+
+          <strong>
+            {{
+              service.tax
+                | number:'1.2-2'
+            }}
+          </strong>
+        </div>
+
+        <div>
+          <small>التصنيف</small>
+
+          <strong>
+            {{
+              service.revenueCategory ||
+                '—'
+            }}
+          </strong>
+        </div>
+
+        <div>
+          <small>الحالة</small>
+
+          <strong>
+            {{
+              service.isActive
+                ? 'نشطة'
+                : 'غير نشطة'
+            }}
+          </strong>
+        </div>
+      </div>
+
+      <hr />
+
+      <p>
+        {{
+          service.description ||
+            'لا يوجد وصف.'
+        }}
+      </p>
+    </section>
+  }
+</main>

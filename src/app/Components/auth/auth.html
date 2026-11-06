@@ -1,0 +1,41 @@
+<main class="auth-shell" [attr.dir]="isArabic() ? 'rtl' : 'ltr'">
+  <section class="login-card" aria-labelledby="login-title">
+    <div class="brand-mark" aria-hidden="true">H</div>
+    <div class="language-row">
+      <button type="button" class="language-button" (click)="toggleLanguage()">{{ message('language') }}</button>
+    </div>
+    <p class="eyebrow">HOTELHUP PMS</p>
+    <h1 id="login-title">{{ message('title') }}</h1>
+    <p class="subtitle">{{ message('subtitle') }}</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+      <label for="userName">{{ message('username') }}</label>
+      <input id="userName" type="text" formControlName="userName" autocomplete="username"
+        [attr.aria-invalid]="loginForm.controls.userName.invalid && loginForm.controls.userName.touched" />
+      @if (loginForm.controls.userName.invalid && loginForm.controls.userName.touched) {
+        <small class="field-error">{{ message('required') }}</small>
+      }
+
+      <label for="password">{{ message('password') }}</label>
+      <input id="password" type="password" formControlName="password" autocomplete="current-password"
+        [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched" />
+      @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
+        <small class="field-error">{{ message('required') }}</small>
+      }
+
+      @if (errorMessage()) {
+        <p class="form-error" role="alert">{{ errorMessage() }}</p>
+      }
+      <button class="submit-button" type="submit" [disabled]="isLoading()">
+        @if (isLoading()) { <span class="spinner" aria-hidden="true"></span> }
+        {{ isLoading() ? message('signingIn') : message('submit') }}
+      </button>
+    </form>
+  </section>
+  <aside class="welcome-panel" aria-hidden="true">
+    <div class="orb orb-one"></div><div class="orb orb-two"></div>
+    <span class="panel-label">HOTEL OPERATIONS</span>
+    <h2>One calm place<br />to run your stay.</h2>
+    <p>Reservations, rooms, guests and service — connected.</p>
+  </aside>
+</main>
