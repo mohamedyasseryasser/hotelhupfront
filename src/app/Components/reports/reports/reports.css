@@ -1,0 +1,10 @@
+.page { max-width: 1500px; margin: auto; padding: 1.5rem; }
+.toolbar { display:flex; justify-content:space-between; align-items:center; }
+label { display:block; font-weight:600; color:#344054; }
+label input, label select { margin-top:.35rem; font-weight:400; }
+.metric-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:1rem; margin-bottom:1rem; }
+.metric-grid > div { background:linear-gradient(135deg,#fff,#f8fafc); border:1px solid #eaecf0; border-radius:14px; padding:1.25rem; box-shadow:0 4px 12px rgba(16,24,40,.05); }
+.metric-grid span { display:block; color:#667085; margin-bottom:.5rem; }
+.metric-grid strong { font-size:1.6rem; color:#1d2939; }
+.table { min-width:850px; }
+@media(max-width:768px){.page{padding:1rem}.toolbar{align-items:flex-start;flex-direction:column}}

@@ -129,7 +129,8 @@
   [queryParams]="{propertyId: item.id }"
 >
   عرض الحجوزات
-</a><a
+</a>
+<a
   class="secondary"
     [class.hidden]="!permissions.canviewservices()"
 
@@ -138,6 +139,24 @@
   [queryParams]="{propertyId: item.id }"
 >
   عرض الخدمات
+</a><a
+  class="secondary"
+    [class.hidden]="!permissions.canviewservices()"
+
+  [routerLink]="['/reports']"
+  
+  [queryParams]="{propertyId: item.id }"
+>
+  عرض التقارير
+</a><a
+  class="secondary"
+    [class.hidden]="!permissions.canviewservices()"
+
+  [routerLink]="['/expenses']"
+  
+  [queryParams]="{propertyId: item.id }"
+>
+  عرض المصروفات
 </a>
   <a
   class="secondary"

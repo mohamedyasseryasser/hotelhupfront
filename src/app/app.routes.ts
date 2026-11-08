@@ -709,7 +709,54 @@ data: { permissions: [PERMISSIONS.reservations.update] }, loadComponent: () => i
       (module) => module.Paymentdetails,
     ),
 },
-
+/*
+   * Expenses
+   */
+  {
+    path: 'expenses/create',
+    canActivate: [permissionGuard],
+    data: { permissions: [PERMISSIONS.expenses.create] },
+    loadComponent: () =>
+      import('./Components/expenses/expenseform/expenseform').then(
+        (module) => module.Expenseform,
+      ),
+  },
+  {
+    path: 'expenses/:id/edit',
+    canActivate: [permissionGuard],
+    data: { permissions: [PERMISSIONS.expenses.update] },
+    loadComponent: () =>
+      import('./Components/expenses/expenseform/expenseform').then(
+        (module) => module.Expenseform,
+      ),
+  },
+  {
+    path: 'expenses/:id',
+    canActivate: [permissionGuard],
+    data: { permissions: [PERMISSIONS.expenses.read] },
+    loadComponent: () =>
+      import('./Components/expenses/expensedetails/expensedetails').then(
+        (module) => module.Expensedetails,
+      ),
+  },
+  {
+    path: 'expenses',
+    canActivate: [permissionGuard],
+    data: { permissions: [PERMISSIONS.expenses.read] },
+    loadComponent: () =>
+      import('./Components/expenses/expenselist/expenselist').then(
+        (module) => module.Expenselist,
+      ),
+  },
+  {
+    path: 'reports',
+    canActivate: [permissionGuard],
+    data: { permissions: [PERMISSIONS.reports.read] },
+    loadComponent: () =>
+      import('./Components/reports/reports/reports').then(
+        (module) => module.Reports,
+      ),
+  },
 /*
  * Services
  */

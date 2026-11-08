@@ -1,0 +1,6 @@
+.page { padding: 1.5rem; max-width: 1500px; margin: auto; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+label { display: block; font-weight: 600; color: #344054; }
+label input, label select { margin-top: .35rem; font-weight: 400; }
+.table { min-width: 980px; }
+@media (max-width: 768px) { .page { padding: 1rem; } .toolbar { align-items: flex-start; flex-direction: column; } }

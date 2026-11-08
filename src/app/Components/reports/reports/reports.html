@@ -1,0 +1,420 @@
+
+<main class="page" dir="rtl">
+
+  <div class="toolbar mb-3">
+    <div>
+      <h1>التقارير</h1>
+      <p class="text-muted mb-0">
+        مؤشرات التشغيل والإيرادات والمصروفات
+      </p>
+    </div>
+  </div>
+
+  <!-- Report Filters -->
+  <section class="card shadow-sm p-3 mb-3">
+
+    <div class="row g-2 align-items-end">
+
+      <div class="col-md-4">
+        <label>
+          نوع التقرير
+          <select
+            class="form-select"
+            [ngModel]="report()"
+            (ngModelChange)="setReport($event)"
+          >
+            <option value="occupancy">الإشغال</option>
+            <option value="revenue">الإيرادات</option>
+            <option value="arrivals">الوصول اليومي</option>
+            <option value="departures">المغادرة</option>
+            <option value="currentGuests">النزلاء الحاليون</option>
+            <option value="roomStatus">حالة الغرف</option>
+            <option value="payments">المدفوعات</option>
+            <option value="refunds">المرتجعات</option>
+            <option value="cancellations">الإلغاءات</option>
+            <option value="housekeeping">Housekeeping</option>
+            <option value="expenses">المصروفات</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          من
+          <input
+            class="form-control"
+            type="date"
+            [ngModel]="from()"
+            (ngModelChange)="from.set($event)"
+          />
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          إلى
+          <input
+            class="form-control"
+            type="date"
+            [ngModel]="to()"
+            (ngModelChange)="to.set($event)"
+          />
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          Room Type ID
+          <input
+            class="form-control"
+            type="number"
+            [ngModel]="roomTypeId()"
+            (ngModelChange)="roomTypeId.set($event ? +$event : null)"
+          />
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <button
+          class="btn btn-primary w-100"
+          (click)="load()"
+        >
+          تحديث التقرير
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Additional Filters -->
+    <div class="row g-2 mt-2">
+
+      @if (report() === 'revenue' || report() === 'expenses') {
+        <div class="col-md-3">
+          <label>
+            العملة
+            <input
+              class="form-control text-uppercase"
+              maxlength="3"
+              [ngModel]="currency()"
+              (ngModelChange)="currency.set($event)"
+            />
+          </label>
+        </div>
+      }
+
+      @if (report() === 'expenses') {
+        <div class="col-md-3">
+          <label>
+            التصنيف
+            <input
+              class="form-control"
+              [ngModel]="category()"
+              (ngModelChange)="category.set($event)"
+            />
+          </label>
+        </div>
+      }
+
+      @if (report() === 'cancellations') {
+        <div class="col-md-3">
+          <label>
+            سبب الإلغاء
+            <input
+              class="form-control"
+              [ngModel]="reason()"
+              (ngModelChange)="reason.set($event)"
+            />
+          </label>
+        </div>
+      }
+
+      @if (report() === 'payments' || report() === 'refunds') {
+        <div class="col-md-3">
+          <label>
+            طريقة الدفع
+            <select
+              class="form-select"
+              [ngModel]="paymentMethod()"
+              (ngModelChange)="paymentMethod.set($event === '' ? null : +$event)"
+            >
+              <option value="">الكل</option>
+              <option [value]="methods.Cash">نقدي</option>
+              <option [value]="methods.CreditCard">ائتمان</option>
+              <option [value]="methods.DebitCard">خصم</option>
+              <option [value]="methods.BankTransfer">تحويل</option>
+              <option [value]="methods.Gateway">بوابة</option>
+            </select>
+          </label>
+        </div>
+      }
+
+      @if (report() === 'payments') {
+        <div class="col-md-3">
+          <label>
+            حالة الدفع
+            <select
+              class="form-select"
+              [ngModel]="paymentStatus()"
+              (ngModelChange)="paymentStatus.set($event === '' ? null : +$event)"
+            >
+              <option value="">الكل</option>
+              <option [value]="paymentStatuses.Pending">Pending</option>
+              <option [value]="paymentStatuses.Paid">Paid</option>
+              <option [value]="paymentStatuses.Refunded">Refunded</option>
+            </select>
+          </label>
+        </div>
+      }
+
+      @if (report() === 'refunds') {
+        <div class="col-md-3">
+          <label>
+            حالة الاسترداد
+            <select
+              class="form-select"
+              [ngModel]="refundStatus()"
+              (ngModelChange)="refundStatus.set($event === '' ? null : +$event)"
+            >
+              <option value="">الكل</option>
+              <option [value]="refundStatuses.Pending">Pending</option>
+              <option [value]="refundStatuses.Completed">Completed</option>
+              <option [value]="refundStatuses.Failed">Failed</option>
+            </select>
+          </label>
+        </div>
+      }
+
+    </div>
+
+  </section>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="alert alert-danger">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="card p-5 text-center">
+      جارٍ تحميل التقرير...
+    </div>
+  }
+
+  <!-- Report Data -->
+  @else {
+
+    <!-- Occupancy Report -->
+    @if (report() === 'occupancy' && data(); as d) {
+
+      <div class="metric-grid">
+
+        <div>
+          <span>نسبة الإشغال</span>
+          <strong>
+            {{ d.occupancyPercentage | number:'1.2-2' }}%
+          </strong>
+        </div>
+
+        <div>
+          <span>الغرف القابلة للبيع</span>
+          <strong>{{ d.sellableRooms }}</strong>
+        </div>
+
+        <div>
+          <span>الغرف المشغولة</span>
+          <strong>{{ d.occupiedRooms }}</strong>
+        </div>
+
+        <div>
+          <span>الليالي المباعة</span>
+          <strong>{{ d.soldRoomNights }}</strong>
+        </div>
+
+      </div>
+    }
+
+    <!-- Revenue Report -->
+    @else if (report() === 'revenue' && data(); as d) {
+
+      <div class="metric-grid">
+
+        <div>
+          <span>إجمالي الإيرادات</span>
+          <strong>
+            {{ d.grossRevenue | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>صافي الإيرادات</span>
+          <strong>
+            {{ d.netRevenue | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>المصروفات</span>
+          <strong>
+            {{ d.expenses | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>صافي التشغيل</span>
+          <strong>
+            {{ d.operatingProfit | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>ADR</span>
+          <strong>
+            {{ d.adr | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>RevPAR</span>
+          <strong>
+            {{ d.revPar | number:'1.2-2' }}
+          </strong>
+        </div>
+
+      </div>
+    }
+
+    <!-- Expenses Report -->
+    @else if (report() === 'expenses' && data(); as d) {
+
+      <div class="metric-grid">
+
+        <div>
+          <span>إجمالي المصروفات</span>
+          <strong>
+            {{ d.totalExpenses | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>عدد المصروفات</span>
+          <strong>{{ d.expenseCount }}</strong>
+        </div>
+
+      </div>
+    }
+
+    <!-- Other Reports -->
+    @else {
+
+      <section class="card shadow-sm p-3">
+
+        <div class="table-responsive">
+
+          <table class="table table-hover align-middle">
+
+            <thead>
+              <tr>
+                <th>المعرف</th>
+                <th>الاسم/الوصف</th>
+                <th>الحالة</th>
+                <th>التاريخ</th>
+                <th>المبلغ</th>
+                <th>تفاصيل</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (row of rows(); track $index) {
+
+                <tr>
+
+                  <td>
+                    {{
+                      row.reservationId ||
+                      row.paymentId ||
+                      row.refundId ||
+                      row.roomId ||
+                      row.taskId ||
+                      row.id ||
+                      '—'
+                    }}
+                  </td>
+
+                  <td>
+                    {{
+                      row.guest ||
+                      row.roomNumber ||
+                      row.category ||
+                      row.description ||
+                      row.reason ||
+                      '—'
+                    }}
+                  </td>
+
+                  <td>
+                    {{ labelStatus(row.status) }}
+                  </td>
+
+                  <td>
+                    {{
+                      (
+                        row.checkInDate ||
+                        row.checkOutDate ||
+                        row.paidAt ||
+                        row.createdAt ||
+                        row.changedAt ||
+                        row.dueAt
+                      ) | date:'dd/MM/yyyy HH:mm'
+                    }}
+                  </td>
+
+                  <td>
+                    {{
+                      (row.amount || row.cancellationFee || 0)
+                        | number:'1.2-2'
+                    }}
+                    {{ row.currency || '' }}
+                  </td>
+
+                  <td>
+                    <small>
+                      {{
+                        row.room ||
+                        row.roomType ||
+                        row.vendorName ||
+                        row.method ||
+                        row.paymentStatus ||
+                        row.housekeepingStatus ||
+                        '—'
+                      }}
+                    </small>
+                  </td>
+
+                </tr>
+
+              }
+
+              @empty {
+                <tr>
+                  <td colspan="6" class="text-center py-4">
+                    لا توجد بيانات
+                  </td>
+                </tr>
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+    }
+
+  }
+
+</main>
