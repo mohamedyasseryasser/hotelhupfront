@@ -15,10 +15,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
  import { Reportsservice } from '../../../Service/reportsservice';
 import { Authservice } from '../../../Service/authservice';
 import { Roomservice } from '../../../Service/roomservice';
+import { Roomtypeservice } from '../../../Service/roomtypeservice';
 import { BookingSource, FolioItemType, HousekeepingTaskStatus } from '../../../Models/reports';
 import { PaymentMethod, PaymentStatus, RefundStatus } from '../../../Models/folio';
 import { ReservationStatus } from '../../../Models/reservation';
-import { Roomtypeservice } from '../../../Service/roomtypeservice';
 import { RoomTypeRecord } from '../../../Models/roomtype';
 
 import { Observable } from 'rxjs';
@@ -57,6 +57,7 @@ export class Reports implements OnInit {
   private readonly api = inject(Reportsservice);
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(Authservice);
+  private readonly roomTypeApi = inject(Roomtypeservice);
 private router=inject(Router);
 private readonly usercurrnet=inject(Authservice);
   // General Filters
@@ -64,10 +65,13 @@ private readonly usercurrnet=inject(Authservice);
   readonly from = signal('');
   readonly to = signal('');
   readonly roomTypeId = signal<number | null>(null);
+  readonly roomTypes = signal<RoomTypeRecord[]>([]);
+  readonly roomTypesLoading = signal(false);
 readonly permissions=inject(Permissionservice);
   readonly category = signal('');
   readonly currency = signal('');
   readonly reason = signal('');
+  readonly revenueType = signal<number | null>(null);
 
 
   // Report Data
@@ -78,12 +82,6 @@ readonly permissions=inject(Permissionservice);
 
   readonly loading = signal(false);
   readonly error = signal('');
-
-readonly roomTypes =
-  signal<RoomTypeRecord[]>([]);
-
-readonly roomTypesLoading =
-  signal(false);
 
 
   // Payment Filters
@@ -112,8 +110,6 @@ readonly roomTypesLoading =
 
   readonly reservationStatuses = ReservationStatus;
   readonly bookingSources = BookingSource;
-private readonly roomTypeApi =
-  inject(Roomtypeservice);
 
   readonly roomStatuses = Roomservice;
   readonly housekeepingStatuses = HousekeepingTaskStatus;
@@ -122,43 +118,43 @@ private readonly roomTypeApi =
 
 
   // Lifecycle
- ngOnInit(): void {
-  this.route.queryParamMap.subscribe(params => {
-    const queryId = Number(
-      params.get('propertyId') ?? 0,
-    );
+  ngOnInit(): void {
 
-    this.propertyId.set(
-      queryId ||
-      this.auth.user()?.propertyId ||
-      0,
-    );
+    this.route.queryParamMap.subscribe(params => {
 
-    this.loadRoomTypes(this.propertyId());
-    this.load();
-  });
-}
-loadRoomTypes(propertyId: number): void {
-  this.roomTypeId.set(null);
+      const queryId = Number(
+        params.get('propertyId') ?? 0
+      );
 
-  if (!propertyId) {
-    this.roomTypes.set([]);
-    this.roomTypesLoading.set(false);
-    return;
+      this.propertyId.set(
+        queryId || this.auth.user()?.propertyId || 0
+      );
+
+      this.loadRoomTypes(this.propertyId());
+      this.load();
+
+    });
+
   }
 
-  this.roomTypesLoading.set(true);
+  loadRoomTypes(propertyId: number): void {
+    this.roomTypeId.set(null);
 
-  this.roomTypeApi
-    .getRoomTypes(propertyId, false)
-    .subscribe({
+    if (!propertyId) {
+      this.roomTypes.set([]);
+      this.roomTypesLoading.set(false);
+      return;
+    }
+
+    this.roomTypesLoading.set(true);
+
+    this.roomTypeApi.getRoomTypes(propertyId, false).subscribe({
       next: response => {
         this.roomTypes.set(
-          (response.data ?? []).filter(
-            roomType =>
-              roomType.propertyId === propertyId &&
-              roomType.isActive !== false,
-          ),
+          (response.data ?? []).filter(roomType =>
+            roomType.propertyId === propertyId &&
+            roomType.isActive !== false
+          )
         );
 
         this.roomTypesLoading.set(false);
@@ -169,10 +165,9 @@ loadRoomTypes(propertyId: number): void {
         this.roomTypesLoading.set(false);
       },
     });
-}
+  }
 
-
-logout(): void {
+  logout(): void {
     this.usercurrnet.logout().subscribe({
       next: () =>
         void this.router.navigate(['/login']),
@@ -234,6 +229,7 @@ let request$: Observable<ApiResponse<any>>;    switch (this.report()) {
         request$ = this.api.revenue({
           ...common,
           roomTypeId: this.roomTypeId() ?? undefined,
+          revenueType: this.revenueType() ?? undefined,
           currency: this.currency().trim() || undefined,
         });
 
@@ -400,6 +396,113 @@ let request$: Observable<ApiResponse<any>>;    switch (this.report()) {
 
     return labels[value] ?? String(value);
 
+  }
+
+  labelPaymentMethod(value: number | null | undefined): string {
+    const labels: Record<number, string> = {
+      [PaymentMethod.Cash]: 'نقدي',
+      [PaymentMethod.CreditCard]: 'بطاقة ائتمان',
+      [PaymentMethod.DebitCard]: 'بطاقة خصم',
+      [PaymentMethod.BankTransfer]: 'تحويل بنكي',
+      [PaymentMethod.Gateway]: 'بوابة دفع',
+    };
+
+    return value === null || value === undefined
+      ? 'غير محدد'
+      : labels[value] ?? String(value);
+  }
+
+labelPaymentStatus(
+  value: number | null | undefined,
+): string {
+  const labels: Record<number, string> = {
+    [PaymentStatus.Pending]: 'قيد الانتظار',
+    [PaymentStatus.PartiallyPaid]: 'مدفوع جزئيًا',
+    [PaymentStatus.Paid]: 'مدفوع بالكامل',
+    [PaymentStatus.Refunded]: 'تم استرداده',
+    [PaymentStatus.PartiallyRefunded]: 'مسترد جزئيًا',
+    [PaymentStatus.Failed]: 'فشل',
+    [PaymentStatus.Voided]: 'ملغى',
+  };
+
+  return value === null || value === undefined
+    ? 'غير محدد'
+    : labels[value] ?? 'غير محدد';
+}
+
+
+
+  labelRefundStatus(value: number | null | undefined): string {
+    const labels: Record<number, string> = {
+      [RefundStatus.Pending]: 'قيد الانتظار',
+      [RefundStatus.Completed]: 'مكتمل',
+      [RefundStatus.Failed]: 'فشل',
+    };
+
+    return value === null || value === undefined
+      ? 'غير محدد'
+      : labels[value] ?? String(value);
+  }
+
+  labelBookingSource(value: number | null | undefined): string {
+    const labels: Record<number, string> = {
+      [BookingSource.Direct]: 'مباشر',
+      [BookingSource.Website]: 'الموقع الإلكتروني',
+      [BookingSource.WalkIn]: 'بدون حجز مسبق',
+      [BookingSource.Agent]: 'وكيل',
+      [BookingSource.Other]: 'أخرى',
+    };
+
+    return value === null || value === undefined
+      ? 'غير محدد'
+      : labels[value] ?? String(value);
+  }
+
+  labelRoomStatus(value: number | null | undefined): string {
+    const labels: Record<number, string> = {
+      0: 'متاحة',
+      1: 'محجوزة',
+      2: 'مشغولة',
+      3: 'متسخة',
+      4: 'قيد التنظيف',
+      5: 'تم الفحص',
+      6: 'خارج الخدمة',
+      7: 'خارج التشغيل',
+    };
+
+    return value === null || value === undefined
+      ? 'غير محدد'
+      : labels[value] ?? String(value);
+  }
+
+  labelHousekeepingStatus(value: number | string | null | undefined): string {
+    const labels: Record<number, string> = {
+      [HousekeepingTaskStatus.Pending]: 'قيد الانتظار',
+      [HousekeepingTaskStatus.Cleaning]: 'قيد التنظيف',
+      [HousekeepingTaskStatus.Completed]: 'مكتمل',
+      [HousekeepingTaskStatus.Inspected]: 'تم الفحص',
+    };
+
+    if (value === null || value === undefined || value === '') {
+      return 'غير محدد';
+    }
+
+    return typeof value === 'number'
+      ? labels[value] ?? String(value)
+      : value;
+  }
+
+  labelRevenueType(value: number): string {
+    const labels: Record<number, string> = {
+      [FolioItemType.RoomCharge]: 'إقامة الغرف',
+      [FolioItemType.Service]: 'خدمات',
+      [FolioItemType.Tax]: 'ضرائب',
+      [FolioItemType.Fee]: 'رسوم',
+      [FolioItemType.Discount]: 'خصومات',
+      [FolioItemType.Adjustment]: 'تسويات',
+    };
+
+    return labels[value] ?? String(value);
   }
 
 }

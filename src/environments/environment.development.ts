@@ -1,3 +1,3 @@
 export const environment = {
-  apiUrl: 'https://hotelhup.runasp.net/api/v1'
+  apiUrl: 'https://full.runasp.net/api/v1'
 };
