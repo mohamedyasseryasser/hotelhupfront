@@ -164,9 +164,9 @@ export class Roomlist  implements OnInit {
     }
 
     this.actionId.set(room.id);
-
+    console.log(this.propertyId(),room.id,room.rowVersion);
     this.api
-      .deactivateRoom(this.propertyId(), room.id, {
+      .deactivateRoom( room.id,this.propertyId(), {
         expectedRowVersion: room.rowVersion,
       })
       .pipe(finalize(() => this.actionId.set(null)))
@@ -185,6 +185,37 @@ export class Roomlist  implements OnInit {
         error: (error) => {
           this.error.set(
             propertyErrorMessage(error, 'تعذر تعطيل الغرفة.'),
+          );
+        },
+      });
+  } 
+  Activate(room: RoomRecord): void {
+    if (!confirm(`تأكيد تعطيل الغرفة ${room.roomNumber}؟`)) {
+      return;
+    }
+
+    this.actionId.set(room.id);
+    console.log(this.propertyId(),room.id,room.rowVersion);
+    this.api
+      .ActivateRoom( room.id,this.propertyId(), {
+        expectedRowVersion: room.rowVersion,
+      })
+      .pipe(finalize(() => this.actionId.set(null)))
+      .subscribe({
+        next: (response) => {
+          if (!response.success) {
+            this.error.set(
+              propertyErrorMessage(response, 'تعذر تفعيل الغرفة.'),
+            );
+            return;
+          }
+
+          this.success.set(response.message || 'تم تفعيل الغرفة.');
+          this.load();
+        },
+        error: (error) => {
+          this.error.set(
+            propertyErrorMessage(error, 'تعذر تفعيل الغرفة.'),
           );
         },
       });

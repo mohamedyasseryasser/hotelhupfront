@@ -61,7 +61,19 @@ export class Roomservice {
       params: new HttpParams().set('propertyId', propertyId),
     });
   }
-
+ ActivateRoom(
+    id: number,
+    propertyId: number,
+    request: DeactivateRoomRequest,
+  ): Observable<RoomResponse> {
+    return this.http.post<RoomResponse>(
+      `${this.url}/${id}/Activate`,
+      request,
+      {
+        params: new HttpParams().set('propertyId', propertyId),
+      },
+    );
+  }
   deactivateRoom(
     id: number,
     propertyId: number,

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Expenses } from '../../../Service/expensesservices';
 import { Authservice } from '../../../Service/authservice';
 import { PaymentMethod } from '../../../Models/folio';
+import { Permissionservice } from '../../../Service/permissionservice';
 
 @Component({
   selector: 'app-expenseform',
@@ -18,7 +19,7 @@ export class Expenseform implements OnInit {
   private readonly router = inject(Router);
   private readonly api = inject(Expenses);
   private readonly auth = inject(Authservice);
-
+readonly permissions=inject(Permissionservice);
   readonly propertyId = signal(0);
   readonly id = signal<number | null>(null);
   readonly rowVersion = signal('');

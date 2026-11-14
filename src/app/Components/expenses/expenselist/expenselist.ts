@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Expenses } from '../../../Service/expensesservices';
 import { ExpenseRecord, ExpenseStatus } from '../../../Models/expenses';
 import { PaymentMethod } from '../../../Models/folio';
+import { Permissionservice } from '../../../Service/permissionservice';
 
 @Component({
   selector: 'app-expenselist',
@@ -16,6 +17,7 @@ export class Expenselist implements OnInit {
   private readonly api = inject(Expenses);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+readonly permissions=inject(Permissionservice);
 
   readonly propertyId = signal(0);
   readonly items = signal<ExpenseRecord[]>([]);
@@ -101,7 +103,7 @@ export class Expenselist implements OnInit {
     });
   }
 
-  void(item: ExpenseRecord): void {
+  voiditem(item: ExpenseRecord): void {
     const reason = prompt('اكتب سبب إلغاء المصروف:');
     if (reason === null || !reason.trim()) return;
     this.api.void(item.id, {

@@ -29,6 +29,7 @@ import { RatePlan } from '../../../Models/rateplane';
 import { Roomtypeservice } from '../../../Service/roomtypeservice';
 import { RoomTypeRecord } from '../../../Models/roomtype';
 import { routes } from '../../../app.routes';
+import { Permissionservice } from '../../../Service/permissionservice';
 
 interface AvailabilityChoice {
   ratePlanId: number;
@@ -79,7 +80,7 @@ readonly route=inject(ActivatedRoute);
 
   readonly excludedReservationId =
     input<number | null>(null);
-
+readonly permissions=inject(Permissionservice);
   readonly selectedRoomIds =
     input<readonly number[]>([]);
 

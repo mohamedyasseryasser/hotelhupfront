@@ -1,8 +1,25 @@
 
 <main class="page" dir="rtl">
+ <div class="details-actions">
+  <a
+    class="btn btn-primary action-btn"
+    [routerLink]="['/properties', propertyId()]"
+    [class.disabled]="!permissions.hasPermission('Property.Read')"
+  >
+     اذهب للعقار
+  </a>
 
+  <button
+    class="secondary details-logout"
+    type="button"
+    (click)="logout()"
+  >
+    تسجيل الخروج
+  </button>
+</div>
   <div class="toolbar mb-3">
     <div>
+      <p class="eyebrow mb-1">HOTELHUP / ANALYTICS</p>
       <h1>التقارير</h1>
       <p class="text-muted mb-0">
         مؤشرات التشغيل والإيرادات والمصروفات
@@ -11,7 +28,7 @@
   </div>
 
   <!-- Report Filters -->
-  <section class="card shadow-sm p-3 mb-3">
+  <section class="card report-filters shadow-sm p-3 mb-3" aria-label="فلاتر التقرير">
 
     <div class="row g-2 align-items-end">
 
@@ -62,17 +79,41 @@
         </label>
       </div>
 
-      <div class="col-md-2">
-        <label>
-          Room Type ID
-          <input
-            class="form-control"
-            type="number"
-            [ngModel]="roomTypeId()"
-            (ngModelChange)="roomTypeId.set($event ? +$event : null)"
-          />
-        </label>
-      </div>
+   <div class="col-md-3">
+  <label>
+    نوع الغرفة
+
+    <select
+      class="form-select"
+      [ngModel]="roomTypeId()"
+      (ngModelChange)="roomTypeId.set($event)"
+      [disabled]="
+        roomTypesLoading() ||
+        roomTypes().length === 0
+      "
+    >
+      <option [ngValue]="null">
+        {{
+          roomTypesLoading()
+            ? 'جارٍ تحميل أنواع الغرف...'
+            : 'كل أنواع الغرف'
+        }}
+      </option>
+
+      @for (
+        roomType of roomTypes();
+        track roomType.id
+      ) {
+        <option
+          [ngValue]="roomType.id"
+        >
+          {{ roomType.name }}
+        </option>
+      }
+    </select>
+  </label>
+</div>
+
 
       <div class="col-md-2">
         <button
@@ -190,14 +231,14 @@
 
   <!-- Error Message -->
   @if (error()) {
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" role="alert">
       {{ error() }}
     </div>
   }
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="card p-5 text-center">
+    <div class="card p-5 text-center" role="status" aria-live="polite">
       جارٍ تحميل التقرير...
     </div>
   }
@@ -312,7 +353,7 @@
 
         <div class="table-responsive">
 
-          <table class="table table-hover align-middle">
+          <table class="table table-hover align-middle" aria-label="نتائج التقرير">
 
             <thead>
               <tr>

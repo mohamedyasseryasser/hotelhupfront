@@ -27,6 +27,7 @@ import {
   FolioStatus,
   FolioItemStatus,
 } from '../../../Models/folio';
+import { Permissionservice } from '../../../Service/permissionservice';
 
 @Component({
   selector: 'app-foliodetails',
@@ -47,7 +48,7 @@ export class Foliodetails implements OnInit {
 
   private readonly api =
     inject(Folio);
-
+readonly permissions=inject(Permissionservice);
   readonly propertyId =
     signal<number | null>(null);
 
@@ -160,6 +161,7 @@ export class Foliodetails implements OnInit {
 
     this.api.get(folioId).subscribe({
       next: (response) => {
+        console.log(response.data);
         this.folio.set(response.data);
         this.loading.set(false);
 
@@ -201,8 +203,11 @@ export class Foliodetails implements OnInit {
     });
 
     this.api.summary(folioId).subscribe({
+     
       next: (response) => {
         this.summary.set(response.data);
+      console.log(folioId);
+        console.log( this.summary());
       },
 
       error: (error) => {
@@ -360,7 +365,7 @@ export class Foliodetails implements OnInit {
     );
   }
 
-  void(item: FolioItem): void {
+  voidItem(item: FolioItem): void {
     if (!this.isOpen()) {
       this.error.set(
         'لا يمكن إلغاء بند داخل Folio مغلق.',

@@ -83,7 +83,10 @@
             />
           </label>
         </div>
-
+@if (
+  (isEdit() && permissions.canUpdateRoom()) ||
+  (!isEdit() && permissions.canCreateRoom())
+) {
         <div class="button-row">
           <button
             class="button primary"
@@ -99,7 +102,7 @@
           >
             إلغاء
           </a>
-        </div>
+        </div>}
       </form>
     }
   </section>

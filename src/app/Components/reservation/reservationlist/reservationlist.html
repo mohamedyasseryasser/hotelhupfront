@@ -16,15 +16,18 @@
     </div>
 
     <div class="d-flex gap-2">
+     @if (permissions.canCreateReservation()) {
+
       <a
         class="btn btn-primary action-btn"
         routerLink="/reservations/new"
         [queryParams]="{ propertyId: filters().propertyId }"
-        [class.disabled]="!permissions.hasPermission('Reservation.Create')"
-      >
+       >
         إنشاء حجز
         <span>＋</span>
-      </a>   <a
+      </a> 
+      }
+        <a
         class="btn btn-primary action-btn"
         routerLink="/properties/{{ filters().propertyId }}"
          [class.disabled]="!permissions.hasPermission('Property.Read')"
@@ -255,6 +258,8 @@
                 </td>
 
                 <td class="text-end">
+                 @if (permissions.canViewReservations()) {
+
                   <a
                     class="btn btn-sm btn-outline-primary"
                     [routerLink]="['/reservations', item.id]"
@@ -263,7 +268,7 @@
                     }"
                   >
                     عرض
-                  </a>
+                  </a>}
                 </td>
 
               </tr>

@@ -1,8 +1,21 @@
-import {  Service } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment.development';
+import {
+  HttpClient,
+  HttpParams,
+} from '@angular/common/http';
+
+import {
+  inject,
+  Injectable,
+} from '@angular/core';
+
+import {
+  Observable,
+} from 'rxjs';
+
+import {
+  environment,
+} from '../../environments/environment.development';
+
 import {
   CancellationPolicyListResponse,
   CancellationPolicyResponse,
@@ -10,25 +23,64 @@ import {
   CreateCancellationPolicyRequest,
   UpdateCancellationPolicyRequest,
 } from '../Models/cancellationpolicy';
-@Injectable({providedIn:'root'})
-export class Cancellationpolicy {
-  private readonly http = inject(HttpClient );
-  // المسار مطابق لـ [Route] في CancellationPoicyController كما هو في backend.
-  private readonly url = `${environment.apiUrl}/propertiecancellationpolicy`;
 
-  getPolicies(propertyId: number): Observable<CancellationPolicyListResponse> {
-    return this.http.get<CancellationPolicyListResponse>(this.policiesUrl(propertyId ));
+@Injectable({
+  providedIn: 'root',
+})
+export class Cancellationpolicy {
+  private readonly http =
+    inject(HttpClient);
+
+  /*
+   * المسار مطابق لـ:
+   *
+   * [Route("api/v1/propertiecancellationpolicy")]
+   */
+  private readonly url =
+    `${environment.apiUrl}/propertiecancellationpolicy`;
+
+  /**
+   * جلب Cancellation Policies.
+   *
+   * عند وجود validFrom:
+   * يتم إرسال:
+   * ?validFrom=...
+   *
+   * عند عدم وجوده:
+   * لا يتم إرسال Query Parameter نهائيًا.
+   */
+  getPolicies(
+    propertyId: number,
+    validFrom?: string | null,
+  ): Observable<CancellationPolicyListResponse> {
+    const params =
+      this.buildValidFromParams(validFrom);
+
+    return this.http.get<CancellationPolicyListResponse>(
+      this.policiesUrl(propertyId),
+      {
+        params,
+      },
+    );
   }
 
-  getPolicy(propertyId: number, policyId: number): Observable<CancellationPolicyResponse> {
-    return this.http.get<CancellationPolicyResponse>(`${this.policiesUrl(propertyId )}/${policyId}`);
+  getPolicy(
+    propertyId: number,
+    policyId: number,
+  ): Observable<CancellationPolicyResponse> {
+    return this.http.get<CancellationPolicyResponse>(
+      `${this.policiesUrl(propertyId)}/${policyId}`,
+    );
   }
 
   createPolicy(
     propertyId: number,
     request: CreateCancellationPolicyRequest,
   ): Observable<CancellationPolicyResponse> {
-    return this.http.post<CancellationPolicyResponse>(this.policiesUrl(propertyId ), request);
+    return this.http.post<CancellationPolicyResponse>(
+      this.policiesUrl(propertyId),
+      request,
+    );
   }
 
   updatePolicy(
@@ -37,11 +89,16 @@ export class Cancellationpolicy {
     rowVersion: string,
     request: UpdateCancellationPolicyRequest,
   ): Observable<CancellationPolicyResponse> {
-    const params = new HttpParams().set('ifmatch', rowVersion);
+    const params =
+      new HttpParams()
+        .set('ifmatch', rowVersion);
+
     return this.http.patch<CancellationPolicyResponse>(
-      `${this.policiesUrl(propertyId )}/${policyId}`,
+      `${this.policiesUrl(propertyId)}/${policyId}`,
       request,
-      { params },
+      {
+        params,
+      },
     );
   }
 
@@ -51,7 +108,7 @@ export class Cancellationpolicy {
     request: ChangeCancellationPolicyStatusRequest,
   ): Observable<CancellationPolicyResponse> {
     return this.http.post<CancellationPolicyResponse>(
-      `${this.policiesUrl(propertyId )}/${policyId}/activate`,
+      `${this.policiesUrl(propertyId)}/${policyId}/activate`,
       request,
     );
   }
@@ -62,13 +119,43 @@ export class Cancellationpolicy {
     request: ChangeCancellationPolicyStatusRequest,
   ): Observable<CancellationPolicyResponse> {
     return this.http.post<CancellationPolicyResponse>(
-      `${this.policiesUrl(propertyId )}/${policyId}/deactivate`,
+      `${this.policiesUrl(propertyId)}/${policyId}/deactivate`,
       request,
     );
   }
 
-  private policiesUrl(propertyId: number): string {
+  /**
+   * إضافة validFrom فقط إذا كانت له قيمة صحيحة.
+   *
+   * لا نرسل:
+   * - null
+   * - undefined
+   * - string فارغة
+   */
+  private buildValidFromParams(
+    validFrom?: string | null,
+  ): HttpParams {
+    let params =
+      new HttpParams();
+
+    if (
+      validFrom !== null &&
+      validFrom !== undefined &&
+      validFrom.trim().length > 0
+    ) {
+      params =
+        params.set(
+          'validFrom',
+          validFrom,
+        );
+    }
+
+    return params;
+  }
+
+  private policiesUrl(
+    propertyId: number,
+  ): string {
     return `${this.url}/${propertyId}/cancellation-policies`;
   }
 }
-

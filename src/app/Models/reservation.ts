@@ -299,5 +299,59 @@ export type ReservationResponse =
 export type ReservationActionResponseEnvelope =
   ApiResponse<ReservationActionResponse>;
 
+export interface CancellationPolicySnapshot {
+  id: number;
+  policyName: string;
+  rules: string;
+  freeCancellationHours: number;
+  cancellationFeePercentage: number;
+  fixedCancellationFee: number;
+  isNonRefundable: boolean;
+  cutoffHours: number;
+  capturedAt: string;
+}
+
+export interface DepositPolicySnapshot {
+  id: number;
+  policyName: string;
+  type: number;
+  amount: number;
+  percentage: number;
+  requiredDepositAmount: number;
+  capturedAt: string;
+}
+
+export interface TaxSnapshot {
+  id: number;
+  taxCode: string;
+  taxName: string;
+  rate: number;
+  type: number;
+  isInclusive: boolean;
+  taxableAmount: number;
+  taxAmount: number;
+  taxValidFrom: string;
+  taxValidTo?: string | null;
+}
+
+export interface ReservationSnapshots {
+  reservationId: number;
+  propertyId: number;
+  cancellationPolicy?:
+    CancellationPolicySnapshot | null;
+  depositPolicy?:
+    DepositPolicySnapshot | null;
+  taxes: TaxSnapshot[];
+  retrievedAt: string;
+}
+
+export interface ReservationHistoryData {
+  reservationId: number;
+  propertyId: number;
+  statusHistory: ReservationStatusHistory[];
+  snapshots: ReservationSnapshots;
+  retrievedAt: string;
+}
+
 export type ReservationHistoryResponse =
-  ApiResponse<ReservationStatusHistory[]>;
+  ApiResponse<ReservationHistoryData>;

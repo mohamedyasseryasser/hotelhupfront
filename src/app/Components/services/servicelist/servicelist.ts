@@ -14,6 +14,7 @@ import {
 
 import { Services } from '../../../Service/services';
 import { ServiceRecord } from '../../../Models/services';
+import { Permissionservice } from '../../../Service/permissionservice';
 @Component({
  imports: [
     CommonModule,
@@ -33,7 +34,7 @@ readonly route = inject(ActivatedRoute);
   readonly includeInactive = signal(false);
   readonly loading = signal(false);
   readonly error = signal('');
-
+ readonly permissions=inject(Permissionservice);
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(param=>{
       const propertyId = Number(

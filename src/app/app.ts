@@ -1,14 +1,25 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
- 
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { Authservice } from './Service/authservice';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
-  standalone:true,
+  standalone: true,
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('hotelhup_front');
+  readonly auth = inject(Authservice);
+  private readonly router = inject(Router);
+
+  logout(): void {
+    this.auth.logout().subscribe({
+      next: () => void this.router.navigate(['/login']),
+      error: () => {
+        this.auth.clearSession();
+        void this.router.navigate(['/login']);
+      },
+    });
+  }
 }

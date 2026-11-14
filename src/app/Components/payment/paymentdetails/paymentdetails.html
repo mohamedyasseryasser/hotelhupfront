@@ -1,7 +1,5 @@
 <main class="page">
-  <a routerLink="/folios">
-    ← Folios
-  </a>
+  
 
   @if (error()) {
     <div class="alert alert-danger mt-3">
@@ -9,11 +7,33 @@
     </div>
   }
 
+  @if (success()) {
+    <div class="alert alert-success mt-3">
+      {{ success() }}
+    </div>
+  }
+
   @if (item(); as payment) {
     <section class="card p-4 mt-3">
-      <h1>
-        Payment #{{ payment.id }}
-      </h1>
+      <div class="toolbar">
+        <h1>
+          Payment #{{ payment.id }}
+        </h1>
+
+      <a
+  class="btn btn-outline-secondary"
+  [routerLink]="[
+    '/folios',
+    payment.folioId,
+    'payments'
+  ]"
+  [queryParams]="{
+    propertyId: propertyid()
+  }"
+>
+  العودة إلى المدفوعات
+</a>
+      </div>
 
       <div class="grid">
         <strong>
@@ -23,10 +43,7 @@
 
         <strong>
           المبلغ:
-          {{
-            payment.amount
-              | number:'1.2-2'
-          }}
+          {{ payment.amount | number:'1.2-2' }}
         </strong>
 
         <strong>
@@ -41,63 +58,154 @@
 
         <strong>
           المبلغ المسترد:
-          {{
-            payment.refundedAmount
-              | number:'1.2-2'
-          }}
+          {{ payment.refundedAmount | number:'1.2-2' }}
+        </strong>
+
+        <strong>
+          المتبقي للاسترداد:
+          {{ refundableAmount() | number:'1.2-2' }}
         </strong>
 
         <strong>
           External ID:
-          {{
-            payment.externalId || '—'
-          }}
+          {{ payment.externalId || '—' }}
         </strong>
       </div>
+    </section>
 
-      <hr />
+    <section class="card p-4 mt-3">
+      <h2>تنفيذ Refund</h2>
 
+      @if (refundableAmount() > 0) {
+        <form
+          class="refund-form"
+          (ngSubmit)="submitRefund()"
+          novalidate
+        >
+          <div class="form-group">
+            <label for="refundAmount">
+              مبلغ الاسترداد
+            </label>
+
+            <input
+              id="refundAmount"
+              class="form-control"
+              type="number"
+              min="0.01"
+              step="0.01"
+              [max]="refundableAmount()"
+              [ngModel]="refundAmount()"
+              (ngModelChange)="refundAmount.set($event === '' || $event === null ? null : +$event)"
+              name="refundAmount"
+              required
+            />
+
+            <small class="text-muted">
+              الحد الأقصى:
+              {{ refundableAmount() | number:'1.2-2' }}
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="refundReason">
+              سبب الاسترداد
+            </label>
+
+            <textarea
+              id="refundReason"
+              class="form-control"
+              rows="3"
+              minlength="3"
+              maxlength="500"
+              [ngModel]="refundReason()"
+              (ngModelChange)="refundReason.set($event)"
+              name="refundReason"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="refundExternalId">
+              External Refund ID - اختياري
+            </label>
+
+            <input
+              id="refundExternalId"
+              class="form-control"
+              type="text"
+              maxlength="200"
+              [ngModel]="refundExternalId()"
+              (ngModelChange)="refundExternalId.set($event)"
+              name="refundExternalId"
+            />
+          </div>
+@if (permissions.canCreateRefund() && canRefund()) {
+
+          <button
+            class="btn btn-danger"
+            type="submit"
+            [disabled]="!canRefund()"
+          >
+            @if (saving()) {
+              جارٍ تنفيذ الاسترداد...
+            } @else {
+              تنفيذ Refund
+            }
+          </button>}
+        </form>
+      } @else {
+        <p class="text-muted mb-0">
+          لا يوجد مبلغ متاح للاسترداد لهذه الدفعة.
+        </p>
+      }
+    </section>
+
+    <section class="card p-4 mt-3">
       <h3>Refunds</h3>
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th>المبلغ</th>
-            <th>الحالة</th>
-            <th>السبب</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @for (
-            refund of payment.refunds;
-            track refund.id
-          ) {
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
             <tr>
-              <td>
-                {{
-                  refund.amount
-                    | number:'1.2-2'
-                }}
-              </td>
-
-              <td>
-                {{ refund.status }}
-              </td>
-
-              <td>
-                {{ refund.reason || '—' }}
-              </td>
+              <th>المبلغ</th>
+              <th>الحالة</th>
+              <th>السبب</th>
+              <th>External ID</th>
             </tr>
-          } @empty {
-            <tr>
-              <td colspan="3">
-                لا توجد Refunds
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            @for (
+              refund of payment.refunds;
+              track refund.id
+            ) {
+              <tr>
+                <td>
+                  {{ refund.amount | number:'1.2-2' }}
+                </td>
+
+                <td>
+                  {{ refund.status }}
+                </td>
+
+                <td>
+                  {{ refund.reason || '—' }}
+                </td>
+
+                <td>
+                  {{ refund.externalId || '—' }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4">
+                  لا توجد Refunds
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </section>
   }
 </main>

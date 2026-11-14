@@ -99,6 +99,10 @@
         </div>
 
         <div class="button-row">
+         @if (
+  (isEdit() && permissions.canUpdateRoomType()) ||
+  (!isEdit() && permissions.canCreateRoomType())
+) {
           <button
             class="button primary"
             type="submit"
@@ -106,7 +110,7 @@
           >
             {{ saving() ? 'جارٍ الحفظ...' : 'حفظ' }}
           </button>
-
+        }
           <a
             class="button secondary"
             [routerLink]="['/properties', propertyId(), 'room-types']"

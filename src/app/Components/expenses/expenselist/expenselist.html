@@ -4,30 +4,332 @@
       <h1>المصروفات</h1>
       <p class="text-muted mb-0">إدارة ومراجعة مصروفات العقار</p>
     </div>
-    <button class="btn btn-primary" type="button" (click)="create()">إضافة مصروف</button>
+
+    @if (permissions.canCreateExpense()) {
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="create()"
+      >
+        إضافة مصروف
+      </button>
+    }
   </div>
 
-  @if (error()) { <div class="alert alert-danger">{{ error() }}</div> }
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">
+      {{ error() }}
+    </div>
+  }
 
-  <section class="card shadow-sm p-3 mb-3">
+  <section
+    class="card expense-filters shadow-sm p-3 mb-3"
+    aria-label="فلاتر المصروفات"
+  >
     <div class="row g-2 align-items-end">
-      <div class="col-md-2"><label>من تاريخ<input class="form-control" type="date" [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" /></label></div>
-      <div class="col-md-2"><label>إلى تاريخ<input class="form-control" type="date" [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" /></label></div>
-      <div class="col-md-2"><label>التصنيف<input class="form-control" [ngModel]="category()" (ngModelChange)="category.set($event)" /></label></div>
-      <div class="col-md-2"><label>المورد<input class="form-control" [ngModel]="vendorName()" (ngModelChange)="vendorName.set($event)" /></label></div>
-      <div class="col-md-2"><label>الحالة<select class="form-select" [ngModel]="status()" (ngModelChange)="status.set($event === '' ? null : +$event)"><option value="">الكل</option><option [value]="statuses.Posted">مرحل</option><option [value]="statuses.Voided">ملغى</option></select></label></div>
-      <div class="col-md-2"><label>طريقة الدفع<select class="form-select" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event === '' ? null : +$event)"><option value="">الكل</option><option [value]="methods.Cash">نقدي</option><option [value]="methods.CreditCard">بطاقة ائتمان</option><option [value]="methods.DebitCard">بطاقة خصم</option><option [value]="methods.BankTransfer">تحويل بنكي</option><option [value]="methods.Gateway">بوابة دفع</option></select></label></div>
-      <div class="col-12 d-flex gap-2"><button class="btn btn-primary" (click)="page.set(1); load()">بحث</button><button class="btn btn-outline-secondary" (click)="reset()">إعادة ضبط</button></div>
+      <div class="col-md-2">
+        <label>
+          من تاريخ
+          <input
+            class="form-control"
+            type="date"
+            [ngModel]="fromDate()"
+            (ngModelChange)="fromDate.set($event)"
+          />
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          إلى تاريخ
+          <input
+            class="form-control"
+            type="date"
+            [ngModel]="toDate()"
+            (ngModelChange)="toDate.set($event)"
+          />
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          التصنيف
+          <input
+            class="form-control"
+            [ngModel]="category()"
+            (ngModelChange)="category.set($event)"
+          />
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          المورد
+          <input
+            class="form-control"
+            [ngModel]="vendorName()"
+            (ngModelChange)="vendorName.set($event)"
+          />
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          الحالة
+          <select
+            class="form-select"
+            [ngModel]="status()"
+            (ngModelChange)="status.set($event === '' ? null : +$event)"
+          >
+            <option value="">الكل</option>
+            <option [value]="statuses.Posted">
+              مرحل
+            </option>
+            <option [value]="statuses.Voided">
+              ملغى
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div class="col-md-2">
+        <label>
+          طريقة الدفع
+          <select
+            class="form-select"
+            [ngModel]="paymentMethod()"
+            (ngModelChange)="
+              paymentMethod.set(
+                $event === '' ? null : +$event
+              )
+            "
+          >
+            <option value="">الكل</option>
+            <option [value]="methods.Cash">
+              نقدي
+            </option>
+            <option [value]="methods.CreditCard">
+              بطاقة ائتمان
+            </option>
+            <option [value]="methods.DebitCard">
+              بطاقة خصم
+            </option>
+            <option [value]="methods.BankTransfer">
+              تحويل بنكي
+            </option>
+            <option [value]="methods.Gateway">
+              بوابة دفع
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button
+          class="btn btn-primary"
+          type="button"
+          (click)="page.set(1); load()"
+        >
+          بحث
+        </button>
+
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          (click)="reset()"
+        >
+          إعادة ضبط
+        </button>
+      </div>
     </div>
   </section>
 
-  <section class="card shadow-sm p-3">
-    <div class="d-flex justify-content-between align-items-center mb-3"><strong>عدد النتائج: {{ totalCount() }}</strong><span class="text-muted">Property #{{ propertyId() }}</span></div>
-    @if (loading()) { <div class="text-center py-4">جارٍ تحميل المصروفات...</div> } @else {
-      <div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>التاريخ</th><th>التصنيف</th><th>الوصف</th><th>المورد</th><th>المبلغ</th><th>الدفع</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>
-        @for (item of items(); track item.id) { <tr><td>{{ item.expenseDate | date:'dd/MM/yyyy' }}</td><td>{{ item.category }}</td><td>{{ item.description }}</td><td>{{ item.vendorName || '—' }}</td><td>{{ item.amount | number:'1.2-2' }} {{ item.currency }}</td><td>{{ item.paymentMethod === methods.Cash ? 'نقدي' : item.paymentMethod === methods.CreditCard ? 'ائتمان' : item.paymentMethod === methods.DebitCard ? 'خصم' : item.paymentMethod === methods.BankTransfer ? 'تحويل' : 'بوابة' }}</td><td><span class="badge" [class.text-bg-success]="item.status === statuses.Posted" [class.text-bg-secondary]="item.status === statuses.Voided">{{ item.status === statuses.Posted ? 'مرحل' : 'ملغى' }}</span></td><td class="d-flex gap-1"><button class="btn btn-sm btn-light" (click)="view(item)">تفاصيل</button>@if (item.status === statuses.Posted) {<button class="btn btn-sm btn-outline-primary" (click)="edit(item)">تعديل</button><button class="btn btn-sm btn-outline-danger" (click)="void(item)">إلغاء</button>}</td></tr> } @empty {<tr><td colspan="8" class="text-center py-4">لا توجد مصروفات</td></tr>}
-      </tbody></table></div>
+  <section
+    class="card expense-results shadow-sm p-3"
+    aria-label="قائمة المصروفات"
+  >
+    <div
+      class="d-flex justify-content-between align-items-center mb-3"
+    >
+      <strong>
+        عدد النتائج:
+        {{ totalCount() }}
+      </strong>
+
+      <span class="text-muted">
+        Property #{{ propertyId() }}
+      </span>
+    </div>
+
+    @if (loading()) {
+      <div
+        class="text-center py-4"
+        role="status"
+        aria-live="polite"
+      >
+        جارٍ تحميل المصروفات...
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table
+          class="table table-hover align-middle"
+          aria-label="المصروفات"
+        >
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>التصنيف</th>
+              <th>الوصف</th>
+              <th>المورد</th>
+              <th>المبلغ</th>
+              <th>الدفع</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>
+                  {{
+                    item.expenseDate
+                      | date:'dd/MM/yyyy'
+                  }}
+                </td>
+
+                <td>
+                  {{ item.category }}
+                </td>
+
+                <td>
+                  {{ item.description }}
+                </td>
+
+                <td>
+                  {{ item.vendorName || '—' }}
+                </td>
+
+                <td>
+                  {{ item.amount | number:'1.2-2' }}
+                  {{ item.currency }}
+                </td>
+
+                <td>
+                  {{
+                    item.paymentMethod === methods.Cash
+                      ? 'نقدي'
+                      : item.paymentMethod === methods.CreditCard
+                        ? 'ائتمان'
+                        : item.paymentMethod === methods.DebitCard
+                          ? 'خصم'
+                          : item.paymentMethod === methods.BankTransfer
+                            ? 'تحويل'
+                            : 'بوابة'
+                  }}
+                </td>
+
+                <td>
+                  <span
+                    class="badge status-badge"
+                    [class.text-bg-success]="
+                      item.status === statuses.Posted
+                    "
+                    [class.text-bg-secondary]="
+                      item.status === statuses.Voided
+                    "
+                    [class.status-posted]="
+                      item.status === statuses.Posted
+                    "
+                    [class.status-voided]="
+                      item.status === statuses.Voided
+                    "
+                  >
+                    {{
+                      item.status === statuses.Posted
+                        ? 'مرحل'
+                        : 'ملغى'
+                    }}
+                  </span>
+                </td>
+
+                <td class="d-flex gap-1">
+                  @if (permissions.canViewExpenses()) {
+                    <button
+                      class="btn btn-sm btn-light"
+                      type="button"
+                      (click)="view(item)"
+                    >
+                      تفاصيل
+                    </button>
+                  }
+
+                  @if (
+                    item.status === statuses.Posted &&
+                    permissions.canUpdateExpense()
+                  ) {
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      type="button"
+                      (click)="edit(item)"
+                    >
+                      تعديل
+                    </button>
+                  }
+
+                  @if (
+                    item.status === statuses.Posted &&
+                    permissions.canVoidExpense()
+                  ) {
+                    <button
+                      class="btn btn-primary"
+                      type="button"
+                      (click)="voiditem(item)"
+                    >
+                      إلغاء
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td
+                  colspan="8"
+                  class="text-center py-4"
+                >
+                  لا توجد مصروفات
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     }
-    <div class="d-flex justify-content-between align-items-center mt-3"><button class="btn btn-outline-secondary" [disabled]="page() <= 1" (click)="previous()">السابق</button><span>صفحة {{ page() }} من {{ totalPages() || 1 }}</span><button class="btn btn-outline-secondary" [disabled]="page() >= totalPages()" (click)="next()">التالي</button></div>
+
+    <div
+      class="d-flex justify-content-between align-items-center mt-3"
+    >
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        [disabled]="page() <= 1"
+        (click)="previous()"
+      >
+        السابق
+      </button>
+
+      <span>
+        صفحة {{ page() }} من {{ totalPages() || 1 }}
+      </span>
+
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        [disabled]="page() >= totalPages()"
+        (click)="next()"
+      >
+        التالي
+      </button>
+    </div>
   </section>
 </main>

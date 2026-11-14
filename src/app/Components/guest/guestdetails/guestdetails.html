@@ -1,7 +1,6 @@
-<main class="container-fluid py-4" dir="rtl">
-
+<main class="guest-details-page" dir="rtl">
   <a
-    class="btn btn-link px-0 mb-3"
+    class="btn btn-link px-0 back-link"
     [routerLink]="['/properties', propertyId(), 'guests']"
   >
     ← العودة إلى الضيوف
@@ -11,224 +10,160 @@
     <div class="card card-body text-center text-body-secondary">
       جارٍ تحميل بيانات الضيف...
     </div>
-  }
-
-  @else if (error() && !guest()) {
+  } @else if (error() && !guest()) {
     <div class="alert alert-danger">
       {{ error() }}
     </div>
-  }
-
-  @else if (guest(); as item) {
-
-    <!-- Guest Header -->
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-
-      <div>
-        <span class="text-primary small fw-semibold">
-          GUEST #{{ item.id }}
-        </span>
-
-        <h1 class="h3 mb-1">
-          {{ item.fullName }}
-        </h1>
-
-        <p class="text-body-secondary mb-0">
-          {{ item.nationality || 'الجنسية غير محددة' }}
-        </p>
+  } @else if (guest(); as item) {
+    <header class="guest-header">
+      <div class="guest-heading">
+        <div class="guest-id" aria-label="معرّف الضيف">
+          <span>معرّف الضيف</span>
+          <strong>#{{ item.id }}</strong>
+        </div>
+        <div>
+          <h1>{{ item.fullName }}</h1>
+          <p>{{ item.nationality || 'الجنسية غير محددة' }}</p>
+        </div>
       </div>
 
-      <div class="d-flex gap-2">
-
-        @if (permissions.canUpdateGuest()) {
-
-          <button
-            class="btn btn-outline-primary"
-            (click)="edit()"
-          >
-            تعديل
-          </button>
-
+      @if (permissions.canUpdateGuest()) {
+        <div class="guest-actions">
+          <button class="btn btn-outline-primary" type="button" (click)="edit()">تعديل</button>
           @if (item.isActive) {
             <button
               class="btn btn-outline-warning"
+              type="button"
               [disabled]="action()"
               (click)="deactivate()"
             >
               تعطيل
             </button>
           }
-
           <button
             class="btn btn-outline-danger"
+            type="button"
             [disabled]="action()"
             (click)="anonymize()"
           >
             إخفاء البيانات
           </button>
+        </div>
+      }
+    </header>
 
-        }
-
-      </div>
-
-    </div>
-
-    <!-- Alerts -->
     @if (error()) {
-      <div class="alert alert-danger">
+      <div class="alert alert-danger page-alert">
         {{ error() }}
       </div>
     }
 
     @if (success()) {
-      <div class="alert alert-success">
+      <div class="alert alert-success page-alert">
         {{ success() }}
       </div>
     }
 
-    <div class="row g-4">
-
-      <!-- Guest Information -->
+    <div class="row g-3">
       <div class="col-lg-7">
-
-        <section class="card border-0 shadow-sm">
-
-          <div class="card-header bg-white fw-semibold">
-            بيانات الضيف
+        <section class="card details-card h-100">
+          <div class="card-header">
+            <h2>بيانات الضيف</h2>
+            <span
+              class="badge"
+              [class.text-bg-success]="item.isActive"
+              [class.text-bg-secondary]="!item.isActive"
+            >
+              {{ item.isActive ? 'نشط' : 'غير نشط' }}
+            </span>
           </div>
 
           <div class="card-body">
-
-            <dl class="row mb-0">
-
-              <dt class="col-sm-4">الهاتف</dt>
-              <dd class="col-sm-8">
-                {{ item.phone || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">البريد الإلكتروني</dt>
-              <dd class="col-sm-8">
-                {{ item.email || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">نوع الهوية</dt>
-              <dd class="col-sm-8">
-                {{ item.identityType || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">رقم الهوية</dt>
-              <dd class="col-sm-8">
-                {{ item.identityNumber || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">الرقم القومي</dt>
-              <dd class="col-sm-8">
-                {{ item.nationalId || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">العنوان</dt>
-              <dd class="col-sm-8">
-                {{ item.address || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">الملاحظات الظاهرة</dt>
-              <dd class="col-sm-8">
-                {{ item.guestVisibleNotes || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">التفضيلات</dt>
-              <dd class="col-sm-8">
-                {{ item.preferences || '—' }}
-              </dd>
-
-              <dt class="col-sm-4">الحالة</dt>
-              <dd class="col-sm-8">
-                <span
-                  class="badge"
-                  [class.text-bg-success]="item.isActive"
-                  [class.text-bg-secondary]="!item.isActive"
-                >
-                  {{ item.isActive ? 'نشط' : 'غير نشط' }}
-                </span>
-              </dd>
-
+            <dl class="guest-fields mb-0">
+              <div class="guest-field">
+                <dt>الهاتف</dt>
+                <dd>{{ item.phone || '—' }}</dd>
+              </div>
+              <div class="guest-field">
+                <dt>البريد الإلكتروني</dt>
+                <dd>{{ item.email || '—' }}</dd>
+              </div>
+              <div class="guest-field">
+                <dt>نوع الهوية</dt>
+                <dd>{{ item.identityType || '—' }}</dd>
+              </div>
+              <div class="guest-field">
+                <dt>رقم الهوية</dt>
+                <dd>{{ item.identityNumber || '—' }}</dd>
+              </div>
+              <div class="guest-field">
+                <dt>الرقم القومي</dt>
+                <dd>{{ item.nationalId || '—' }}</dd>
+              </div>
+              <div class="guest-field">
+                <dt>العنوان</dt>
+                <dd>{{ item.address || '—' }}</dd>
+              </div>
+              <div class="guest-field">
+                <dt>الملاحظات الظاهرة</dt>
+                <dd>{{ item.guestVisibleNotes || '—' }}</dd>
+              </div>
+              <div class="guest-field">
+                <dt>التفضيلات</dt>
+                <dd>{{ item.preferences || '—' }}</dd>
+              </div>
             </dl>
-
           </div>
-
         </section>
-
       </div>
 
-      <!-- Reservation History -->
       <div class="col-lg-5">
-
-        <section class="card border-0 shadow-sm">
-
-          <div class="card-header bg-white fw-semibold">
-            تاريخ الحجوزات
+        <section class="card reservations-card h-100">
+          <div class="card-header">
+            <h2>تاريخ الحجوزات</h2>
+            <span class="reservation-count">{{ reservations().length }}</span>
           </div>
 
           <div class="table-responsive">
-
             <table class="table table-sm align-middle mb-0">
-
-              <thead class="table-light">
+              <thead>
                 <tr>
                   <th>الحجز</th>
                   <th>الإقامة</th>
                   <th>الإجمالي</th>
+                  <th>إجراء</th>
                 </tr>
               </thead>
-
               <tbody>
-
-                @for (
-                  reservation of reservations();
-                  track reservation.reservationId
-                ) {
+                @for (reservation of reservations(); track reservation.reservationId) {
                   <tr>
-
+                    <td>#{{ reservation.reservationId }}</td>
                     <td>
-                      #{{ reservation.reservationId }}
+                      {{ reservation.checkInDate | date: 'shortDate' }}
+                      <span class="date-separator">-</span>
+                      {{ reservation.checkOutDate | date: 'shortDate' }}
                     </td>
-
+                    <td>{{ reservation.totalAmount | number: '1.2-2' }}</td>
                     <td>
-                      {{ reservation.checkInDate | date:'shortDate' }}
-                      -
-                      {{ reservation.checkOutDate | date:'shortDate' }}
-                    </td>
-
-                    <td>
-                      {{ reservation.totalAmount | number:'1.2-2' }}
-                    </td>
-
-                  </tr>
-                }
-
-                @empty {
-                  <tr>
-                    <td
-                      colspan="3"
-                      class="text-center text-body-secondary py-4"
-                    >
-                      لا توجد حجوزات.
+                      <a
+                        class="btn btn-sm btn-outline-primary"
+                        [routerLink]="['/reservations', reservation.reservationId]"
+                        [queryParams]="{ propertyId: propertyId() }"
+                      >
+                        عرض الحجز
+                      </a>
                     </td>
                   </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="empty-reservations">لا توجد حجوزات.</td>
+                  </tr>
                 }
-
               </tbody>
-
             </table>
-
           </div>
-
         </section>
-
       </div>
-
     </div>
-
   }
-
 </main>

@@ -19,12 +19,7 @@
         </p>
       </div>
 
-      <a
-        routerLink="/reservations"
-        class="btn btn-light"
-      >
-        العودة للحجوزات
-      </a>
+     
     </div>
   }
 
@@ -156,6 +151,8 @@
         </div>
 
         <!-- Search button -->
+       @if (permissions.canViewReservations()) {
+
         <div class="col-12 col-md-1">
           <button
             class="btn btn-primary w-100"
@@ -169,7 +166,7 @@
                 : 'بحث'
             }}
           </button>
-        </div>
+        </div>}
       </div>
     </div>
   </section>

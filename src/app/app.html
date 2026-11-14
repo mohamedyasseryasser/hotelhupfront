@@ -1,2 +1,11 @@
- <router-outlet></router-outlet>
- 
+@if (auth.isAuthenticated()) {
+  <div class="app-shell">
+    <div class="app-content">
+      <main class="app-main">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+} @else {
+  <router-outlet></router-outlet>
+}

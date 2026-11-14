@@ -6,6 +6,7 @@ import { propertyErrorMessage } from '../../../errors/propertyerror';
 import { Roomtypeservice } from '../../../Service/roomtypeservice';
 import { CreateRoomTypeRequest, RoomTypeRecord } from '../../../Models/roomtype';
 import { finalize } from 'rxjs';
+import { Permissionservice } from '../../../Service/permissionservice';
 
 @Component({
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
@@ -23,6 +24,8 @@ export class Roomtypeform  implements OnInit {
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
+readonly permissions = inject(Permissionservice);
+readonly isEdit = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     name: [
@@ -50,7 +53,8 @@ export class Roomtypeform  implements OnInit {
     this.propertyId.set(propertyId);
      const typeId = Number(this.route.snapshot.paramMap.get('typeId'));
 
-    if (typeId > 0) {
+    if (typeId > 0) {  this.isEdit.set(true);
+
       this.loading.set(true);
 
       this.api
@@ -102,8 +106,13 @@ export class Roomtypeform  implements OnInit {
     };
 
     const currentType = this.type();
-
-    const call = currentType
+if (this.isEdit() && !currentType) {
+  this.error.set(
+    'تعذر تحديد نوع الغرفة المطلوب تعديله.',
+  );
+  return;
+}
+    const call =this.isEdit()&& currentType
       ? this.api.updateRoomType(
           currentType.id,
           currentType.rowVersion,

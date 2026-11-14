@@ -17,6 +17,7 @@ import { Roomtypeservice } from '../../../Service/roomtypeservice';
 })
 export class Roomform  implements OnInit {
   private readonly fb = inject(FormBuilder);
+  readonly isEdit =signal<boolean>(false);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(Roomservice);
@@ -25,6 +26,7 @@ export class Roomform  implements OnInit {
   readonly room = signal<RoomRecord | null>(null);
   readonly types = signal<RoomTypeRecord[]>([]);
   readonly loading = signal(false);
+  readonly permissions=inject(Permissionservice);
   readonly saving = signal(false);
   readonly error = signal('');
   readonly form = this.fb.nonNullable.group({
@@ -63,10 +65,12 @@ export class Roomform  implements OnInit {
 
     if (roomId > 0) {
       this.loading.set(true);
-
+      this.isEdit.set(true);
       this.api
         .getRoom(roomId, propertyId)
-        .pipe(finalize(() => this.loading.set(false)))
+        .pipe(finalize(() =>
+         this.loading.set(false) 
+         ))
         .subscribe({
           next: (response) => {
             if (!response.success || !response.data) {
@@ -98,7 +102,7 @@ export class Roomform  implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-
+    
     const value = this.form.getRawValue();
 
     const request: CreateRoomRequest = {
@@ -109,8 +113,9 @@ export class Roomform  implements OnInit {
 
     const currentRoom = this.room();
 
-    const call = currentRoom
-      ? this.api.updateRoom(this.propertyId(), currentRoom.id, {
+    const call =this.isEdit()&& currentRoom
+      ?
+       this.api.updateRoom(this.propertyId(), currentRoom.id, {
           ...request,
           expectedRowVersion: currentRoom.rowVersion,
         })

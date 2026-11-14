@@ -31,8 +31,9 @@ readonly  usercurrnet=inject(Authservice)
   readonly loading = signal(true);
   readonly error = signal('');
   readonly actionId = signal(0);
-
+ readonly isadmin=signal<boolean>(false);
   ngOnInit(): void {
+   this.isadmin.set(this.usercurrnet.hasRole('Admin'));
     this.load();
   }
 

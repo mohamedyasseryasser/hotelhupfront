@@ -31,6 +31,7 @@ import {
 import {
   ServiceRecord,
 } from '../../../Models/services';
+import { Permissionservice } from '../../../Service/permissionservice';
 
 @Component({
   standalone: true,
@@ -89,6 +90,7 @@ export class Folioform implements OnInit {
 
   readonly error =
     signal('');
+readonly permissions=inject(Permissionservice);
 
   readonly form =
     this.fb.nonNullable.group({

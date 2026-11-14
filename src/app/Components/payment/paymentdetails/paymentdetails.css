@@ -21,10 +21,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(
-    2,
-    minmax(0, 1fr)
-  );
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -38,6 +35,22 @@
 .form-select {
   font-size: 13px;
   border-radius: 9px;
+}
+
+.refund-form {
+  display: grid;
+  gap: 14px;
+  max-width: 640px;
+}
+
+.form-group {
+  display: grid;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 13px;
 }
 
 .actions {

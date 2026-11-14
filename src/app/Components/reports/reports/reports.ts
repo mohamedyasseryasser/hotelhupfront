@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 
  import { Reportsservice } from '../../../Service/reportsservice';
@@ -18,11 +18,14 @@ import { Roomservice } from '../../../Service/roomservice';
 import { BookingSource, FolioItemType, HousekeepingTaskStatus } from '../../../Models/reports';
 import { PaymentMethod, PaymentStatus, RefundStatus } from '../../../Models/folio';
 import { ReservationStatus } from '../../../Models/reservation';
+import { Roomtypeservice } from '../../../Service/roomtypeservice';
+import { RoomTypeRecord } from '../../../Models/roomtype';
 
 import { Observable } from 'rxjs';
 import {
   ApiResponse
 } from '../../../Models/auth';
+import { Permissionservice } from '../../../Service/permissionservice';
 type ReportKey =
   | 'occupancy'
   | 'revenue'
@@ -40,7 +43,7 @@ type ReportKey =
 @Component({
   selector: 'app-reports',
   imports: [
-    CommonModule,
+    CommonModule,RouterLink,
     FormsModule,
     DatePipe,
     DecimalPipe,
@@ -54,14 +57,14 @@ export class Reports implements OnInit {
   private readonly api = inject(Reportsservice);
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(Authservice);
-
-
+private router=inject(Router);
+private readonly usercurrnet=inject(Authservice);
   // General Filters
   readonly propertyId = signal(0);
   readonly from = signal('');
   readonly to = signal('');
   readonly roomTypeId = signal<number | null>(null);
-
+readonly permissions=inject(Permissionservice);
   readonly category = signal('');
   readonly currency = signal('');
   readonly reason = signal('');
@@ -75,6 +78,12 @@ export class Reports implements OnInit {
 
   readonly loading = signal(false);
   readonly error = signal('');
+
+readonly roomTypes =
+  signal<RoomTypeRecord[]>([]);
+
+readonly roomTypesLoading =
+  signal(false);
 
 
   // Payment Filters
@@ -103,6 +112,8 @@ export class Reports implements OnInit {
 
   readonly reservationStatuses = ReservationStatus;
   readonly bookingSources = BookingSource;
+private readonly roomTypeApi =
+  inject(Roomtypeservice);
 
   readonly roomStatuses = Roomservice;
   readonly housekeepingStatuses = HousekeepingTaskStatus;
@@ -111,25 +122,67 @@ export class Reports implements OnInit {
 
 
   // Lifecycle
-  ngOnInit(): void {
+ ngOnInit(): void {
+  this.route.queryParamMap.subscribe(params => {
+    const queryId = Number(
+      params.get('propertyId') ?? 0,
+    );
 
-    this.route.queryParamMap.subscribe(params => {
+    this.propertyId.set(
+      queryId ||
+      this.auth.user()?.propertyId ||
+      0,
+    );
 
-      const queryId = Number(
-        params.get('propertyId') ?? 0
-      );
+    this.loadRoomTypes(this.propertyId());
+    this.load();
+  });
+}
+loadRoomTypes(propertyId: number): void {
+  this.roomTypeId.set(null);
 
-      this.propertyId.set(
-        queryId || this.auth.user()?.propertyId || 0
-      );
-
-      this.load();
-
-    });
-
+  if (!propertyId) {
+    this.roomTypes.set([]);
+    this.roomTypesLoading.set(false);
+    return;
   }
 
+  this.roomTypesLoading.set(true);
 
+  this.roomTypeApi
+    .getRoomTypes(propertyId, false)
+    .subscribe({
+      next: response => {
+        this.roomTypes.set(
+          (response.data ?? []).filter(
+            roomType =>
+              roomType.propertyId === propertyId &&
+              roomType.isActive !== false,
+          ),
+        );
+
+        this.roomTypesLoading.set(false);
+      },
+
+      error: () => {
+        this.roomTypes.set([]);
+        this.roomTypesLoading.set(false);
+      },
+    });
+}
+
+
+logout(): void {
+    this.usercurrnet.logout().subscribe({
+      next: () =>
+        void this.router.navigate(['/login']),
+
+      error: () => {
+        this.usercurrnet.clearSession();
+        void this.router.navigate(['/login']);
+      },
+    });
+  }
   // Report Selection
   setReport(value: string): void {
 

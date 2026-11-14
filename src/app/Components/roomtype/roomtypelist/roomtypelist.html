@@ -114,18 +114,22 @@
                 </td>
 
                 <td class="row-actions">
+               @if (permissions.canViewRoomTypes()) {
+
                   <button
                     class="text-button"
                     (click)="view(type)"
+                    
                   >
                     عرض
                   </button>
-
+                }
                   @if (permissions.canUpdateRoomType()) {
                     <button
                       class="text-button"
                       (click)="edit(type)"
-                    >
+                      [disabled]="!type.isActive"
+                      >
                       تعديل
                     </button>
                   }
@@ -141,7 +145,7 @@
                       </button>
                     }
                   } @else {
-                    @if (permissions.canUpdateRoomType()) {
+                    @if (permissions.canActivateRoomType()) {
                       <button
                         class="text-button"
                         [disabled]="actionId() === type.id"

@@ -40,7 +40,10 @@
                 <td>v{{ plan.currentVersion?.versionNumber ?? 0 }}</td>
                 <td><span class="badge" [class.text-bg-success]="plan.isActive" [class.text-bg-secondary]="!plan.isActive">{{ plan.isActive ? 'نشطة' : 'غير نشطة' }}</span></td>
                 <td class="text-nowrap">
+                @if (permissions.canViewRatePlans()) {
+
                   <button class="btn btn-sm btn-outline-primary me-1" type="button" (click)="view(plan)">عرض</button>
+                }
                   @if (permissions.canUpdateRatePlan()) { <button class="btn btn-sm btn-outline-secondary me-1" type="button" (click)="edit(plan)">تعديل</button> }
                   @if (plan.isActive && permissions.canDeactivateRatePlan()) 
                   {

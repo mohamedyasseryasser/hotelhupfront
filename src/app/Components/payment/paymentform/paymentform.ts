@@ -92,8 +92,12 @@ readonly propertyid=signal<number>(0);
           void this.router.navigate([
             '/folios',
             this.folioId,
-            'payments',
-          ]);
+            'payments'
+          ],       {
+      queryParams: {
+        propertyId: this.propertyid(),
+      },
+    },       );
         },
 
         error: (error) => {

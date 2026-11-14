@@ -83,7 +83,12 @@
                       عرض
                     </button>
                     @if (permissions.canUpdateProperty()) {
-                      <button class="text-button" type="button" (click)="editPolicy(policy)">
+                      <button
+                        class="text-button"
+                        type="button"
+                        [disabled]="!isActive(policy.status)"
+                        (click)="editPolicy(policy)"
+                      >
                         إصدار جديد
                       </button>
                       @if (isActive(policy.status)) {

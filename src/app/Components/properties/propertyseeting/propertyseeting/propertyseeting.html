@@ -175,6 +175,7 @@
             {{ success() }}
           </p>
         }
+@if (permissions.canUpdateProperty()) {
 
         <div class="actions">
 
@@ -182,8 +183,7 @@
             class="primary"
             type="submit"
             [disabled]="saving()"
-            [class.hidden]="!permissions.canUpdateProperty()"
-          >
+           >
             {{ saving() ? 'جارٍ الحفظ...' : 'حفظ الإعدادات' }}
           </button>
 
@@ -195,7 +195,7 @@
           </a>
 
         </div>
-
+      }
       </form>
 
     }

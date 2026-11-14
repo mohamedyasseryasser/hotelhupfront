@@ -22,7 +22,7 @@
         <option [ngValue]="true">الضرائب كلها</option>
       </select>
 
-      @if (permissions.canUpdateProperty()) {
+@if (permissions.canUpdateProperty()) {
         <button
           class="button primary"
           type="button"
@@ -109,16 +109,30 @@
                 </td>
 
                 <td class="row-actions">
-                  <button type="button" class="text-button" (click)="viewTax(tax)">
+                 @if (permissions.canViewProperties()) {
+
+                  <button
+                    type="button"
+                    class="text-button"
+                    [disabled]="!tax.isActive"
+                    (click)="viewTax(tax)"
+                  >
                     عرض
                   </button>
-
+                }
                   @if (permissions.canUpdateProperty()) {
-                    <button type="button" class="text-button" (click)="editTax(tax)">
+                    <button
+                      type="button"
+                      class="text-button"
+                      [disabled]="!tax.isActive"
+                      (click)="editTax(tax)"
+                    >
                       تعديل
                     </button>
 
                     @if (tax.isActive) {
+                      @if (tax.isActive && permissions.canUpdateProperty()) {
+
                       <button
                         type="button"
                         class="text-button danger-text"
@@ -126,8 +140,10 @@
                         (click)="deactivateTax(tax)"
                       >
                         تعطيل
-                      </button>
+                      </button>}
                     } @else {
+                      @if (tax.isActive && permissions.canUpdateProperty()) {
+
                       <button
                         type="button"
                         class="text-button activate-text"
@@ -137,6 +153,7 @@
                         تفعيل
                       </button>
                     }
+                  }
                   }
                 </td>
               </tr>

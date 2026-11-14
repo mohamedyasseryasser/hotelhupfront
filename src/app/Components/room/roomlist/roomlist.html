@@ -12,7 +12,7 @@
       </p>
     </div>
 
-    @if (permissions.canCreateRoom()) {
+@if (permissions.canCreateRoom()) {
       <button class="button primary" (click)="create()">
         ＋ إضافة غرفة
       </button>
@@ -112,13 +112,15 @@
                 </td>
 
                 <td class="row-actions">
+                 @if (permissions.canViewRooms()) {
+
                   <button
                     class="text-button"
                     (click)="view(room)"
                   >
                     عرض
                   </button>
-
+                }
                   @if (permissions.canUpdateRoom()) {
                     <button
                       class="text-button"
@@ -138,6 +140,15 @@
                       (click)="deactivate(room)"
                     >
                       تعطيل
+                    </button>
+                  }@if (!room.isActive && permissions.canUpdateRoom()) {
+
+                     <button
+                      class="text-button success-text"
+                      [disabled]="actionId() === room.id"
+                      (click)="Activate(room)"
+                    >
+                      تفعيل
                     </button>
                   }
                 </td>

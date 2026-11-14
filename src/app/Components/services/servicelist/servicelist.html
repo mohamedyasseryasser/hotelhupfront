@@ -7,6 +7,7 @@
         إدارة خدمات الفندق وأسعارها
       </p>
     </div>
+@if (permissions.canCreateService()) {
 
     <button
       class="btn btn-primary"
@@ -14,7 +15,7 @@
       (click)="create()"
     >
       إضافة خدمة
-    </button>
+    </button>}
   </div>
 
   @if (error()) {
@@ -107,13 +108,15 @@
               </td>
 
               <td class="actions">
-                <button
+               @if (permissions.canViewServices()) {
+ <button
                   class="btn btn-sm btn-light"
                   type="button"
                   (click)="view(service)"
                 >
                   تفاصيل
-                </button>
+                </button>}
+@if (permissions.canUpdateService()) {
 
                 <button
                   class="btn btn-sm btn-outline-primary"
@@ -121,9 +124,9 @@
                   (click)="edit(service)"
                 >
                   تعديل
-                </button>
+                </button>}
 
-                @if (service.isActive) {
+                @if (service.isActive &&   permissions.canDeactivateService()) {
                   <button
                     class="btn btn-sm btn-outline-danger"
                     type="button"

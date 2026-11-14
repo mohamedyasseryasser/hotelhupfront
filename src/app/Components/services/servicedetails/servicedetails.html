@@ -17,6 +17,7 @@
         <h1>
           {{ service.name }}
         </h1>
+@if (permissions.canUpdateService()) {
 
         <button
           class="btn btn-outline-primary"
@@ -24,7 +25,7 @@
           (click)="edit()"
         >
           تعديل
-        </button>
+        </button>}
       </div>
 
       <div class="grid">

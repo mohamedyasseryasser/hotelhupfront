@@ -13,6 +13,7 @@
         المستخدمون ضمن نطاق الصلاحية الخاص بحسابك.
       </p>
     </div>
+@if (permissions.canCreateUser()) {
 
     <a
       class="primary"
@@ -22,6 +23,7 @@
     >
       + مستخدم جديد
     </a>
+  }
   </header>
 
   <section
@@ -204,6 +206,7 @@
                   >
                     عرض
                   </a>
+                  @if (permissions.canUpdateUser()) {
 
                   <a
                     [routerLink]="['/users', user.userId, 'edit']"
@@ -213,7 +216,7 @@
                   >
                     تعديل
                   </a>
-
+                }
                   <button
                     type="button"
                     (click)="confirmStatusChange(user)"

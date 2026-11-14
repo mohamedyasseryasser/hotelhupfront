@@ -11,12 +11,12 @@ export const PERMISSIONS = {
     assignRole: 'User.AssignRole',
   },
 
-  properties: {
-    read: 'Property.Read',
-    create: 'Property.Create',
-    update: 'Property.Update',
-    activate: 'Property.Activate',
-    deactivate: 'Property.Deactivate',
+  roles: {
+    read: 'Role.Read',
+    create: 'Role.Create',
+    update: 'Role.Update',
+    deactivate: 'Role.Deactivate',
+    assignPermission: 'Role.AssignPermission',
   },
 
   guests: {
@@ -117,6 +117,14 @@ export const PERMISSIONS = {
   auditLogs: {
     read: 'AuditLog.Read',
   },
+
+  properties: {
+    read: 'Property.Read',
+    create: 'Property.Create',
+    update: 'Property.Update',
+    activate: 'Property.Activate',
+    deactivate: 'Property.Deactivate',
+  },
 } as const;
 
 @Injectable({
@@ -126,24 +134,30 @@ export class Permissionservice {
   private readonly auth = inject(Authservice);
 
   hasPermission(permission: string): boolean {
+    const normalizedPermission = permission.trim().toLowerCase();
+
     return this.auth.permissions().some(
-      (currentPermission) =>
-        currentPermission.toLowerCase() ===
-        permission.toLowerCase(),
+      currentPermission =>
+        currentPermission.trim().toLowerCase() ===
+        normalizedPermission,
     );
   }
 
   hasAnyPermission(...permissions: string[]): boolean {
-    return permissions.some((permission) =>
+    return permissions.some(permission =>
       this.hasPermission(permission),
     );
   }
 
   hasAllPermissions(...permissions: string[]): boolean {
-    return permissions.every((permission) =>
+    return permissions.every(permission =>
       this.hasPermission(permission),
     );
   }
+
+  // =========================
+  // Users
+  // =========================
 
   canViewUsers(): boolean {
     return this.hasPermission(PERMISSIONS.users.read);
@@ -153,8 +167,12 @@ export class Permissionservice {
     return this.hasPermission(PERMISSIONS.users.create);
   }
 
-  canEditUser(): boolean {
+  canUpdateUser(): boolean {
     return this.hasPermission(PERMISSIONS.users.update);
+  }
+
+  canEditUser(): boolean {
+    return this.canUpdateUser();
   }
 
   canActivateUser(): boolean {
@@ -166,27 +184,49 @@ export class Permissionservice {
   }
 
   canAssignRole(): boolean {
+    return this.hasPermission(PERMISSIONS.users.assignRole);
+  }
+
+  // =========================
+  // Roles
+  // =========================
+
+  canViewRoles(): boolean {
+    return this.hasPermission(PERMISSIONS.roles.read);
+  }
+
+  canCreateRole(): boolean {
+    return this.hasPermission(PERMISSIONS.roles.create);
+  }
+
+  canUpdateRole(): boolean {
+    return this.hasPermission(PERMISSIONS.roles.update);
+  }
+
+  canDeactivateRole(): boolean {
+    return this.hasPermission(PERMISSIONS.roles.deactivate);
+  }
+
+  canAssignPermissionToRole(): boolean {
     return this.hasPermission(
-      PERMISSIONS.users.assignRole,
+      PERMISSIONS.roles.assignPermission,
     );
   }
 
+  // =========================
+  // Properties
+  // =========================
+
   canViewProperties(): boolean {
-    return this.hasPermission(
-      PERMISSIONS.properties.read,
-    );
+    return this.hasPermission(PERMISSIONS.properties.read);
   }
 
   canCreateProperty(): boolean {
-    return this.hasPermission(
-      PERMISSIONS.properties.create,
-    );
+    return this.hasPermission(PERMISSIONS.properties.create);
   }
 
   canUpdateProperty(): boolean {
-    return this.hasPermission(
-      PERMISSIONS.properties.update,
-    );
+    return this.hasPermission(PERMISSIONS.properties.update);
   }
 
   canActivateProperty(): boolean {
@@ -201,22 +241,82 @@ export class Permissionservice {
     );
   }
 
-  canViewRooms(): boolean {
+  // =========================
+  // Guests
+  // =========================
+
+  canViewGuests(): boolean {
+    return this.hasPermission(PERMISSIONS.guests.read);
+  }
+
+  canCreateGuest(): boolean {
+    return this.hasPermission(PERMISSIONS.guests.create);
+  }
+
+  canUpdateGuest(): boolean {
+    return this.hasPermission(PERMISSIONS.guests.update);
+  }
+
+  // =========================
+  // Reservations
+  // =========================
+
+  canViewReservations(): boolean {
     return this.hasPermission(
-      PERMISSIONS.rooms.read,
+      PERMISSIONS.reservations.read,
     );
+  }
+
+  canCreateReservation(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.reservations.create,
+    );
+  }
+
+  canCreateReservations(): boolean {
+    return this.canCreateReservation();
+  }
+
+  canUpdateReservation(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.reservations.update,
+    );
+  }
+
+  canEditReservation(): boolean {
+    return this.canUpdateReservation();
+  }
+
+  canCancelReservation(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.reservations.cancel,
+    );
+  }
+
+  canModifyReservation(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.reservations.modify,
+    );
+  }
+
+  // =========================
+  // Rooms
+  // =========================
+
+  canViewRooms(): boolean {
+    return this.hasPermission(PERMISSIONS.rooms.read);
   }
 
   canCreateRoom(): boolean {
-    return this.hasPermission(
-      PERMISSIONS.rooms.create,
-    );
+    return this.hasPermission(PERMISSIONS.rooms.create);
   }
 
   canUpdateRoom(): boolean {
-    return this.hasPermission(
-      PERMISSIONS.rooms.update,
-    );
+    return this.hasPermission(PERMISSIONS.rooms.update);
+  }
+
+  canEditRoom(): boolean {
+    return this.canUpdateRoom();
   }
 
   canChangeRoomStatus(): boolean {
@@ -226,10 +326,12 @@ export class Permissionservice {
   }
 
   canAssignRoom(): boolean {
-    return this.hasPermission(
-      PERMISSIONS.rooms.assign,
-    );
+    return this.hasPermission(PERMISSIONS.rooms.assign);
   }
+
+  // =========================
+  // Room Types
+  // =========================
 
   canViewRoomTypes(): boolean {
     return this.hasPermission(
@@ -249,32 +351,230 @@ export class Permissionservice {
     );
   }
 
+  canEditRoomType(): boolean {
+    return this.canUpdateRoomType();
+  }
+
   canDeactivateRoomType(): boolean {
     return this.hasPermission(
       PERMISSIONS.roomTypes.deactivate,
     );
   }
-canViewGuests() { return this.hasPermission(PERMISSIONS.guests.read); }
-  canCreateGuest() { return this.hasPermission(PERMISSIONS.guests.create); }
-  canUpdateGuest() { return this.hasPermission(PERMISSIONS.guests.update); }
-  canViewRatePlans() { return this.hasPermission(PERMISSIONS.ratePlans.read); }
-  canCreateRatePlan() { return this.hasPermission(PERMISSIONS.ratePlans.create); }
-  canUpdateRatePlan() { return this.hasPermission(PERMISSIONS.ratePlans.update); }
-  canDeactivateRatePlan() { return this.hasPermission(PERMISSIONS.ratePlans.deactivate); }
-    canActivateRatePlan() { return this.hasPermission(PERMISSIONS.ratePlans.activate); }
+
+  canActivateRoomType(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.roomTypes.activate,
+    );
+  }
+
+  // =========================
+  // Rate Plans
+  // =========================
+
+  canViewRatePlans(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.ratePlans.read,
+    );
+  }
+
+  canCreateRatePlan(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.ratePlans.create,
+    );
+  }
+
+  canUpdateRatePlan(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.ratePlans.update,
+    );
+  }
+
+  canEditRatePlan(): boolean {
+    return this.canUpdateRatePlan();
+  }
+
+  canActivateRatePlan(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.ratePlans.activate,
+    );
+  }
+
+  canDeactivateRatePlan(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.ratePlans.deactivate,
+    );
+  }
+
+  // =========================
+  // Rate Rules
+  // =========================
+
+  canViewRateRules(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.rateRules.read,
+    );
+  }
+
+  canCreateRateRule(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.rateRules.create,
+    );
+  }
+
+  canUpdateRateRule(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.rateRules.update,
+    );
+  }
+
+  canDeleteRateRule(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.rateRules.delete,
+    );
+  }
+
+  // =========================
+  // Folios
+  // =========================
+
+  canViewFolios(): boolean {
+    return this.hasPermission(PERMISSIONS.folios.read);
+  }
+
+  canCreateFolio(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.folios.create,
+    );
+  }
+
+  canUpdateFolio(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.folios.update,
+    );
+  }
+
+  canAddFolioCharge(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.folios.addCharge,
+    );
+  }
+
+  canTransferFolio(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.folios.transfer,
+    );
+  }
+
+  canCloseFolio(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.folios.close,
+    );
+  }
+
+  canReopenFolio(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.folios.reopen,
+    );
+  }
+
+  // =========================
+  // Payments
+  // =========================
+
+  canViewPayments(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.payments.read,
+    );
+  }
+
+  canCreatePayment(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.payments.create,
+    );
+  }
+
+  canVoidPayment(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.payments.void,
+    );
+  }
+
+  // =========================
+  // Refunds
+  // =========================
+
+  canViewRefunds(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.refunds.read,
+    );
+  }
+
+  canCreateRefund(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.refunds.create,
+    );
+  }
+
+  canApproveRefund(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.refunds.approve,
+    );
+  }
+
+  // =========================
+  // Services
+  // =========================
+
+  canViewServices(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.services.read,
+    );
+  }
+
+  canCreateService(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.services.create,
+    );
+  }
+
+  canUpdateService(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.services.update,
+    );
+  }
+
+  canEditService(): boolean {
+    return this.canUpdateService();
+  }
+
+  canDeactivateService(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.services.deactivate,
+    );
+  }
+
+  canAddServiceToFolio(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.services.addToFolio,
+    );
+  }
+
+  // =========================
+  // Housekeeping
+  // =========================
 
   canViewHousekeeping(): boolean {
     return this.hasPermission(
       PERMISSIONS.housekeeping.read,
     );
   }
-  canViewReservations(): boolean {
-    return this.hasPermission(PERMISSIONS.reservations.read);
+
+  canAssignHousekeeping(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.housekeeping.assign,
+    );
   }
-  canCreateReservations():boolean
-  {
-    return this.hasPermission(PERMISSIONS.reservations.create);
-   }
+
   canStartHousekeeping(): boolean {
     return this.hasPermission(
       PERMISSIONS.housekeeping.start,
@@ -292,7 +592,62 @@ canViewGuests() { return this.hasPermission(PERMISSIONS.guests.read); }
       PERMISSIONS.housekeeping.reportIssue,
     );
   }
-  canviewservices(){
-    return this.hasPermission(PERMISSIONS.services.read);
+
+  // =========================
+  // Expenses
+  // =========================
+
+  canViewExpenses(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.expenses.read,
+    );
+  }
+
+  canCreateExpense(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.expenses.create,
+    );
+  }
+
+  canUpdateExpense(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.expenses.update,
+    );
+  }
+
+  canEditExpense(): boolean {
+    return this.canUpdateExpense();
+  }
+
+  canVoidExpense(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.expenses.void,
+    );
+  }
+
+  // =========================
+  // Reports
+  // =========================
+
+  canViewReports(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.reports.read,
+    );
+  }
+
+  canExportReports(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.reports.export,
+    );
+  }
+
+  // =========================
+  // Audit Logs
+  // =========================
+
+  canViewAuditLogs(): boolean {
+    return this.hasPermission(
+      PERMISSIONS.auditLogs.read,
+    );
   }
 }

@@ -76,6 +76,7 @@ export class Propertieslist implements OnInit {readonly PropertyStatus = Propert
     .subscribe({
 
       next: (response) => {
+        console.log(response.data);
         if (response.success && response.data) {
           this.page.set(response.data);
            return;

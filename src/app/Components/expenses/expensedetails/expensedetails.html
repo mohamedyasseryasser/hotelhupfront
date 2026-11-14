@@ -1,1 +1,90 @@
-<main class="page" dir="rtl"><a class="btn btn-link px-0" routerLink="/expenses">← المصروفات</a>@if (error()) {<div class="alert alert-danger">{{ error() }}</div>}@if (loading()) {<div class="py-4">جارٍ التحميل...</div>}@if (item(); as expense) {<section class="card shadow-sm p-4 mt-2"><div class="d-flex justify-content-between align-items-start"><div><h1>{{ expense.category }}</h1><p class="text-muted">مصروف #{{ expense.id }}</p></div><span class="badge" [class.text-bg-success]="expense.status === status.Posted" [class.text-bg-secondary]="expense.status === status.Voided">{{ expense.status === status.Posted ? 'مرحل' : 'ملغى' }}</span></div><div class="row g-3 mt-2"><div class="col-md-6"><strong>الوصف</strong><p>{{ expense.description }}</p></div><div class="col-md-3"><strong>المبلغ</strong><p>{{ expense.amount | number:'1.2-2' }} {{ expense.currency }}</p></div><div class="col-md-3"><strong>التاريخ</strong><p>{{ expense.expenseDate | date:'dd/MM/yyyy' }}</p></div><div class="col-md-4"><strong>المورد</strong><p>{{ expense.vendorName || '—' }}</p></div><div class="col-md-4"><strong>رقم المرجع</strong><p>{{ expense.referenceNumber || '—' }}</p></div><div class="col-md-4"><strong>تاريخ الإنشاء</strong><p>{{ expense.createdAt | date:'dd/MM/yyyy HH:mm' }}</p></div><div class="col-12"><strong>ملاحظات</strong><p>{{ expense.notes || 'لا توجد ملاحظات' }}</p></div></div></section>}</main>
+<main class="page" dir="rtl">
+
+  @if (permissions.canViewExpenses()) {
+
+    <a class="btn btn-link px-0" routerLink="/expenses">
+      ← المصروفات
+    </a>
+
+    @if (error()) {
+      <div class="alert alert-danger">
+        {{ error() }}
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="py-4">
+        جارٍ التحميل...
+      </div>
+    }
+
+    @if (item(); as expense) {
+
+      <section class="card shadow-sm p-4 mt-2">
+
+        <div class="d-flex justify-content-between align-items-start">
+
+          <div>
+            <h1>{{ expense.category }}</h1>
+            <p class="text-muted">مصروف #{{ expense.id }}</p>
+          </div>
+
+          <span
+            class="badge"
+            [class.text-bg-success]="expense.status === status.Posted"
+            [class.text-bg-secondary]="expense.status === status.Voided"
+          >
+            {{ expense.status === status.Posted ? 'مرحل' : 'ملغى' }}
+          </span>
+
+        </div>
+
+        <div class="row g-3 mt-2">
+
+          <div class="col-md-6">
+            <strong>الوصف</strong>
+            <p>{{ expense.description }}</p>
+          </div>
+
+          <div class="col-md-3">
+            <strong>المبلغ</strong>
+            <p>
+              {{ expense.amount | number:'1.2-2' }}
+              {{ expense.currency }}
+            </p>
+          </div>
+
+          <div class="col-md-3">
+            <strong>التاريخ</strong>
+            <p>{{ expense.expenseDate | date:'dd/MM/yyyy' }}</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>المورد</strong>
+            <p>{{ expense.vendorName || '—' }}</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>رقم المرجع</strong>
+            <p>{{ expense.referenceNumber || '—' }}</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>تاريخ الإنشاء</strong>
+            <p>{{ expense.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+
+          <div class="col-12">
+            <strong>ملاحظات</strong>
+            <p>{{ expense.notes || 'لا توجد ملاحظات' }}</p>
+          </div>
+
+        </div>
+
+      </section>
+
+    }
+
+  }
+
+</main>

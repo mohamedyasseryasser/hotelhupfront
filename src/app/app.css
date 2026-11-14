@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app-shell,
+.app-content,
+.app-main {
+  min-height: 100vh;
+}
+
+.app-content {
+  direction: rtl;
+}

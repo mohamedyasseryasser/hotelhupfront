@@ -1,10 +1,11 @@
 <main class="page" dir="rtl">
-  <a
-    class="back"
+  
+  <button 
+    class="back btn-btn-primary"
     [routerLink]="['/properties', propertyId(), 'room-types']"
   >
     ← العودة إلى أنواع الغرف
-  </a>
+  </button>
 
   @if (loading() && !type()) {
     <section class="card state">
@@ -67,7 +68,7 @@
       </dl>
 
       <div class="actions">
-        @if (permissions.canUpdateProperty()) {
+        @if (permissions.canUpdateRoomType()) {
           <button
             class="button primary"
             (click)="edit()"

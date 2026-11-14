@@ -21,18 +21,19 @@
 
       <div>
         <span class="eyebrow">
-          Reservation #{{ res.id }}
+          تفاصيل الحجز
         </span>
 
         <h1>
           {{ res.guestName || 'ضيف غير مسمى' }}
         </h1>
 
-        <p>
-          {{ res.checkInDate | date:'dd MMM yyyy' }}
-          <span class="arrow">←</span>
-          {{ res.checkOutDate | date:'dd MMM yyyy' }}
-        </p>
+       <p class="hero-dates">  <span>{{ res.checkOutDate | date:'dd MMM yyyy' }}</span>
+
+  <span class="arrow">←</span> 
+  <span>{{ res.checkInDate | date:'dd MMM yyyy' }}</span>
+</p> 
+
       </div>
 
       <div class="hero-side">
@@ -42,6 +43,7 @@
           <span class="status-badge status-{{ res.status }}">
             {{ label(res.status) }}
           </span>
+@if (permissions.canUpdateReservation()) {
 
           <a
             class="btn btn-sm btn-light"
@@ -49,15 +51,15 @@
             [queryParams]="{ propertyId: propertyId() }"
           >
             تعديل
-          </a>
+          </a>}
 
         </div>
 
         <strong>
-          {{ res.totalAmount | number:'1.2-2' }}
+          {{ finalReservationTotal() | number:'1.2-2' }}
         </strong>
 
-        <small>إجمالي الحجز</small>
+        <small>الإجمالي النهائي للحجز</small>
 
       </div>
 
@@ -84,70 +86,113 @@
 
         <!-- Reservation Information -->
         <section class="card border-0 shadow-sm section-card info-card">
-
-          <div class="card-header bg-white border-0">
-
+          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
             <strong>معلومات الحجز</strong>
-
             <span class="text-muted small">
-              Property #{{ res.propertyId }}
-            </span>
-
+             </span>
           </div>
 
           <div class="card-body">
-
-            <div class="stats-grid">
-
+            <div class="stats-grid mb-4">
               <div>
                 <small>الوصول</small>
-                <strong>
-                  {{ res.checkInDate | date:'dd/MM/yyyy' }}
-                </strong>
+                <strong>{{ res.checkInDate | date:'dd/MM/yyyy' }}</strong>
               </div>
-
               <div>
                 <small>المغادرة</small>
-                <strong>
-                  {{ res.checkOutDate | date:'dd/MM/yyyy' }}
-                </strong>
+                <strong>{{ res.checkOutDate | date:'dd/MM/yyyy' }}</strong>
               </div>
-
+              <div>
+                <small>عدد الليالي</small>
+                <strong>{{ totalNights() }}</strong>
+              </div>
+              <div>
+                <small>عدد الغرف</small>
+                <strong>{{ res.rooms.length }}</strong>
+              </div>
               <div>
                 <small>بالغون</small>
                 <strong>{{ res.adults }}</strong>
               </div>
-
               <div>
                 <small>أطفال</small>
                 <strong>{{ res.children }}</strong>
               </div>
-
-              <div>
-                <small>Base</small>
-                <strong>
-                  {{ res.baseAmount | number:'1.2-2' }}
-                </strong>
-              </div>
-
-              <div>
-                <small>Tax</small>
-                <strong>
-                  {{ res.taxAmount | number:'1.2-2' }}
-                </strong>
-              </div>
-             <div *ngIf="folioId()">
-  <app-foliolist
-    [folioId]="folioId()"
-    [propertyId]="propertyId()"
-  ></app-foliolist>
-</div>
-
-
             </div>
 
-          </div>
+            <div class="price-summary" aria-label="ملخص سعر الحجز">
+              <div class="price-summary-header">
+                <div>
+                  <h5 class="mb-1">ملخص السعر</h5>
+                  <small class="text-muted">
+                    توضيح السعر قبل الخصم والضرائب والرسوم
+                  </small>
+                </div>
+                <span class="price-summary-currency">قيمة الحجز</span>
+              </div>
 
+              <div class="price-line">
+                <span>إجمالي أسعار الغرف قبل الخصم</span>
+                <strong>{{ roomsSubtotalBeforeDiscount() | number:'1.2-2' }}</strong>
+              </div>
+
+              <div class="price-line discount-line">
+                <span>الخصم</span>
+                <strong>- {{ totalDiscountAmount() | number:'1.2-2' }}</strong>
+              </div>
+
+              <div class="price-line subtotal-line">
+                <span>صافي الغرف قبل الضرائب</span>
+                <strong>{{ netRoomsBeforeTax() | number:'1.2-2' }}</strong>
+              </div>
+
+              <div class="price-line tax-line">
+                <span>
+                  الضريبة الشاملة داخل سعر الغرف
+                  <small>(Inclusive)</small>
+                </span>
+                <strong>{{ inclusiveTaxAmount() | number:'1.2-2' }}</strong>
+              </div>
+
+              <div class="price-line emphasized-line">
+                <span>إجمالي الغرف شامل الضريبة الشاملة</span>
+                <strong>{{ roomsIncludingInclusiveTax() | number:'1.2-2' }}</strong>
+              </div>
+
+              <div class="price-line">
+                <span>الرسوم</span>
+                <strong>{{ totalFees() | number:'1.2-2' }}</strong>
+              </div>
+
+              <div class="price-line tax-line">
+                <span>
+                  الضرائب غير الشاملة المضافة للسعر
+                  <small>(Exclusive)</small>
+                </span>
+                <strong>{{ exclusiveTaxAmount() | number:'1.2-2' }}</strong>
+              </div>
+
+              <div class="price-total-line">
+                <span>الإجمالي النهائي للحجز</span>
+                <strong>{{ finalReservationTotal() | number:'1.2-2' }}</strong>
+              </div>
+            </div>
+
+            <div class="tax-explanation mt-3">
+              <strong>طريقة الحساب:</strong>
+              صافي الغرف بعد الخصم + الضريبة الشاملة داخل السعر = إجمالي الغرف شامل الضريبة،
+              ثم تضاف الرسوم والضرائب غير الشاملة للوصول إلى الإجمالي النهائي.
+            </div>
+
+            @if (folioId()) {
+              <div class="folio-action mt-3">
+                <app-foliolist
+                  [folioId]="folioId()"
+                  [propertyId]="propertyId()"
+                ></app-foliolist>
+              </div>
+            }
+          </div>
         </section>
 
         <!-- Rooms -->
@@ -174,6 +219,8 @@
                   <th>السعر</th>
                   <th>الإجمالي</th>
                   <th>الحالة</th>
+                  <th>الخصم</th>
+                  <th>الرسوم</th>
                   <th></th>
                 </tr>
               </thead>
@@ -210,12 +257,13 @@
                       </span>
 
                     </td>
-
+                  <td>{{room.discountAmount}}</td>
+                  <td>{{room.feeAmount}}</td>
                     <td>
 
                       @if (
                         room.isCurrent &&
-                        res.status === statuses.CheckedIn
+                        res.status === statuses.CheckedIn&&permissions.canModifyReservation()
                       ) {
 
                         <button
@@ -237,7 +285,7 @@
                 @empty {
 
                   <tr>
-                    <td colspan="6" class="text-center text-muted py-3">
+                    <td colspan="8" class="text-center text-muted py-3">
                       لا توجد غرف مرتبطة بالحجز.
                     </td>
                   </tr>
@@ -314,8 +362,7 @@
 
               @if (
                 res.status === statuses.Pending &&
-                permissions.hasPermission('Reservation.Modify')
-              ) {
+permissions.canModifyReservation()              ) {
 
                 <button
                   class="action action-blue"
@@ -331,8 +378,7 @@
                   res.status === statuses.Pending ||
                   res.status === statuses.Confirmed
                 ) &&
-                permissions.hasPermission('Reservation.Modify')
-              ) {
+permissions.canModifyReservation()              ) {
 
                 <button
                   class="action action-purple"
@@ -345,8 +391,7 @@
 
               @if (
                 res.status === statuses.Confirmed &&
-                permissions.hasPermission('Reservation.Modify')
-              ) {
+permissions.canModifyReservation()              ) {
 
                 <button
                   class="action action-green"
@@ -359,8 +404,7 @@
 
               @if (
                 res.status === statuses.CheckedIn &&
-                permissions.hasPermission('Reservation.Modify')
-              ) {
+permissions.canModifyReservation()              ) {
 
                 <button
                   class="action action-purple"
@@ -368,6 +412,7 @@
                 >
                   تسجيل الخروج
                 </button>
+@if (permissions.canModifyReservation()) {
 
                 <button
                   class="action action-blue"
@@ -375,6 +420,7 @@
                 >
                   تمديد الإقامة
                 </button>
+              }@if (permissions.canModifyReservation()) {
 
                 <button
                   class="action action-orange"
@@ -382,7 +428,7 @@
                 >
                   خروج مبكر
                 </button>
-
+              }
               }
 
               @if (
@@ -390,8 +436,7 @@
                   res.status === statuses.Pending ||
                   res.status === statuses.Confirmed
                 ) &&
-                permissions.hasPermission('Reservation.Modify')
-              ) {
+permissions.canModifyReservation()              ) {
 
                 <button
                   class="action action-red"
@@ -407,8 +452,7 @@
                   res.status === statuses.Pending ||
                   res.status === statuses.Confirmed
                 ) &&
-                permissions.hasPermission('Reservation.Cancel')
-              ) {
+permissions.canCancelReservation()              ) {
 
                 <button
                   class="action action-red"
@@ -683,7 +727,185 @@
 
   }
 
-  @else if (!loading()) {
+    <!-- Reservation Snapshots - Full Page Width -->
+    @if (snapshots(); as snapshot) {
+      <section class="card border-0 shadow-sm section-card snapshots-card">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <strong>سياسات وضرائب الحجز المحفوظة</strong>
+          <small class="text-muted">
+            تم الاسترجاع في:
+            {{ snapshot.retrievedAt | date:'dd/MM/yyyy HH:mm' }}
+          </small>
+        </div>
+
+        <div class="card-body">
+          <div class="snapshots-wide-grid">
+            <article class="snapshot-column">
+              <div class="snapshot-heading cancellation-heading">
+                <span class="snapshot-icon">×</span>
+                <div>
+                  <h6 class="mb-1">Cancellation Policy</h6>
+                  <small>سياسة الإلغاء المحفوظة</small>
+                </div>
+              </div>
+
+              @if (snapshot.cancellationPolicy; as cancellation) {
+                <div class="snapshot-content">
+                  <div class="snapshot-field">
+                    <span>اسم السياسة</span>
+                    <strong>{{ cancellation.policyName }}</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>الإلغاء المجاني</span>
+                    <strong>{{ cancellation.freeCancellationHours }} ساعة</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>نسبة الغرامة</span>
+                    <strong>{{ cancellation.cancellationFeePercentage }}%</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>الغرامة الثابتة</span>
+                    <strong>{{ cancellation.fixedCancellationFee | number:'1.2-2' }}</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>Cutoff</span>
+                    <strong>{{ cancellation.cutoffHours }} ساعة</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>Non-refundable</span>
+                    <strong
+                      [class.text-danger]="cancellation.isNonRefundable"
+                      [class.text-success]="!cancellation.isNonRefundable"
+                    >
+                      {{ cancellation.isNonRefundable ? 'نعم' : 'لا' }}
+                    </strong>
+                  </div>
+                  <div class="snapshot-rules">
+                    <span>القواعد</span>
+                    <p>{{ cancellation.rules }}</p>
+                  </div>
+                  <div class="snapshot-captured">
+                    تم الالتقاط في:
+                    {{ cancellation.capturedAt | date:'dd/MM/yyyy HH:mm' }}
+                  </div>
+                </div>
+              } @else {
+                <div class="empty-snapshot">
+                  لا توجد Cancellation Policy Snapshot.
+                </div>
+              }
+            </article>
+
+            <article class="snapshot-column">
+              <div class="snapshot-heading deposit-heading">
+                <span class="snapshot-icon">$</span>
+                <div>
+                  <h6 class="mb-1">Deposit Policy</h6>
+                  <small>سياسة العربون المحفوظة</small>
+                </div>
+              </div>
+
+              @if (snapshot.depositPolicy; as deposit) {
+                <div class="snapshot-content">
+                  <div class="snapshot-field">
+                    <span>اسم السياسة</span>
+                    <strong>{{ deposit.policyName }}</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>النوع</span>
+                    <strong>{{ deposit.type }}</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>المبلغ المطلوب</span>
+                    <strong>{{ deposit.requiredDepositAmount | number:'1.2-2' }}</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>المبلغ الثابت</span>
+                    <strong>{{ deposit.amount | number:'1.2-2' }}</strong>
+                  </div>
+                  <div class="snapshot-field">
+                    <span>النسبة</span>
+                    <strong>{{ deposit.percentage }}%</strong>
+                  </div>
+                  <div class="snapshot-captured">
+                    تم الالتقاط في:
+                    {{ deposit.capturedAt | date:'dd/MM/yyyy HH:mm' }}
+                  </div>
+                </div>
+              } @else {
+                <div class="empty-snapshot">
+                  لا توجد Deposit Policy Snapshot.
+                </div>
+              }
+            </article>
+
+            <article class="snapshot-column taxes-column">
+              <div class="snapshot-heading tax-heading">
+                <span class="snapshot-icon">%</span>
+                <div>
+                  <h6 class="mb-1">Tax Snapshots</h6>
+                  <small>الضرائب المحفوظة وقت إنشاء الحجز</small>
+                </div>
+              </div>
+
+              <div class="snapshot-content">
+                @if (snapshot.taxes.length > 0) {
+                  <div class="tax-list">
+                    @for (tax of snapshot.taxes; track tax.id) {
+                      <div class="tax-item">
+                        <div class="tax-item-header">
+                          <strong>{{ tax.taxName }}</strong>
+                          <span class="tax-code">{{ tax.taxCode }}</span>
+                        </div>
+
+                        <div class="tax-item-details">
+                          <div>
+                            <span>Rate</span>
+                            <strong>{{ tax.rate }}%</strong>
+                          </div>
+                          <div>
+                            <span>Taxable</span>
+                            <strong>{{ tax.taxableAmount | number:'1.2-2' }}</strong>
+                          </div>
+                          <div>
+                            <span>Tax</span>
+                            <strong class="text-primary">{{ tax.taxAmount | number:'1.2-2' }}</strong>
+                          </div>
+                          <div>
+                            <span>النوع</span>
+                            <strong>{{ tax.isInclusive ? 'شاملة' : 'غير شاملة' }}</strong>
+                          </div>
+                        </div>
+
+                        <div class="tax-validity">
+                          <span>
+                            من: {{ tax.taxValidFrom | date:'dd/MM/yyyy' }}
+                          </span>
+                          <span>
+                            إلى:
+                            @if (tax.taxValidTo) {
+                              {{ tax.taxValidTo | date:'dd/MM/yyyy' }}
+                            } @else {
+                              مفتوحة
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="empty-snapshot">
+                    لا توجد ضرائب محفوظة.
+                  </div>
+                }
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    }
+
+  @if (!loading() && !reservation()) {
 
     <div class="alert alert-warning">
       لم يتم العثور على الحجز.

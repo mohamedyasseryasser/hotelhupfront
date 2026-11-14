@@ -43,13 +43,14 @@
           }
         </div>
 
-        <div class="button-row">
+        @if (permissions.canUpdateProperty()) {
+<div class="button-row">
           <button class="button primary" type="submit" [disabled]="saving()" 
-           [class.hidden]="!permissions.canUpdateProperty()"
->
+ >
             {{ saving() ? 'جارٍ الحفظ...' : (editingTax() ? 'حفظ التعديلات' : 'إنشاء الضريبة') }}</button>
           <a class="button secondary" [routerLink]="['/properties', propertyId(), 'taxes']">إلغاء</a>
         </div>
+      }
       </form>
     }
   </section>

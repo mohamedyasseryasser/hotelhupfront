@@ -14,6 +14,7 @@
         إدارة بيانات العقارات وإعداداتها وحالتها التشغيلية.
       </p>                                                     
     </div>
+@if (permissions.canCreateProperty()) {
 
     <a                                                    
       class="primary"                                  
@@ -21,7 +22,7 @@
   [class.hidden]="!permissions.canCreateProperty()"
     >
       + عقار جديد
-    </a>
+    </a>}
   </header>
 
   <section
@@ -132,8 +133,8 @@
               <th>الكود</th>
               <th>الحالة</th>
               <th>الضرائب</th>
-              <th>الإلغاء</th>
-              <th>الإيداع</th>
+              <th> سياسات الإلغاء  </th>
+              <th> سياسات الإيداع</th>
               <th>إجراءات</th>
             </tr>
           </thead>
@@ -181,7 +182,8 @@
                 <td class="actions">
 
                   <a
-                    [routerLink]="['/properties', item.id]"
+                    [routerLink]="['/reports']",
+  [queryParams]="{ propertyId: item.id }"
                     [class.hidden]="!permissions.canViewProperties()"
                   >
                     عرض
@@ -196,7 +198,7 @@
                                                         
                   <a
                     [routerLink]="['/properties', item.id, 'settings']"
-                    [class.hidden]="!permissions.canViewProperties()"
+                    [class.hidden]="!permissions.canUpdateProperty()"
 
                   >
                     الإعدادات

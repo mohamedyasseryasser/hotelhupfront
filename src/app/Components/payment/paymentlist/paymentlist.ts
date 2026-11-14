@@ -13,6 +13,7 @@ import {
 
 import { Payments } from '../../../Service/payments';
 import { Payment } from '../../../Models/payments';
+import { Permissionservice } from '../../../Service/permissionservice';
 
 @Component({
   standalone: true,
@@ -33,7 +34,7 @@ export class Paymentlist implements OnInit {
     this.route.snapshot.paramMap
       .get('folioId')  
   );
-
+  readonly permissions=inject(Permissionservice);
   readonly items = signal<Payment[]>([]);
   readonly summary = signal<any>(null);
   readonly error = signal('');
@@ -50,11 +51,12 @@ export class Paymentlist implements OnInit {
   }
 
   load(): void {
-    //console.log(this.propertyid()+"jhhgfd");
+    console.log(this.folioId+'d');
      this.api
       .list(this.folioId)
       .subscribe({
         next: (response) => {
+        console.log(response.data);
           this.items.set(
             response.data ?? [],
           );
@@ -72,6 +74,7 @@ export class Paymentlist implements OnInit {
       .summary(this.folioId)
       .subscribe({
         next: (response) => {
+          console.log(response.data);
           this.summary.set(response.data);
         },
       });
@@ -92,9 +95,16 @@ export class Paymentlist implements OnInit {
   }
 
   view(payment: Payment): void {
-    void this.router.navigate([
+  void this.router.navigate(
+    [
       '/payments',
       payment.id,
-    ]);
-  }
+    ],
+    {
+      queryParams: {
+        propertyId: this.propertyid(),
+      },
+    },
+  );
+}
 }

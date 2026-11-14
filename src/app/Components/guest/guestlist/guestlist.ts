@@ -112,12 +112,11 @@ export class Guestlist implements OnInit {
   }
 
   view(guest: GuestListItem): void {
-
     void this.router.navigate([
       '/properties',
       this.propertyId(),
       'guests',
-      guest.id
+      guest.id,
     ]);
   }
 
@@ -141,4 +140,5 @@ export class Guestlist implements OnInit {
       'create'
     ]);
   }
+
 }

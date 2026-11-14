@@ -1,5 +1,6 @@
 <main class="page">
   <a
+    class="back-button"
     [routerLink]="[
       '/folios',
       folioId
@@ -270,6 +271,7 @@
         </div>
       }
 
+      @if (permissions.canAddFolioCharge()) {
       <button
         class="btn btn-primary mt-3"
         type="submit"
@@ -286,6 +288,7 @@
             : 'حفظ البند'
         }}
       </button>
+      }
     </form>
   </section>
 </main>

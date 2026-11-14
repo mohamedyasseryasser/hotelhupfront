@@ -74,6 +74,7 @@
           {{ item.updatedAt ? (item.updatedAt | date: 'medium') : '—' }}
         </dd>
       </dl>
+      @if (permissions.canUpdateUser()) {
 
       <a
         class="primary"
@@ -82,6 +83,7 @@
       >
         تعديل البيانات
       </a>
+    }
     </section>
   }
 </main>

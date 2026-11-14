@@ -36,7 +36,7 @@ export class Rateplaneform implements OnInit {
   private readonly router = inject(Router);
   private readonly api = inject(Rateplanservice);
   private readonly roomTypesApi = inject(Roomtypeservice);
-
+  readonly isEdit = signal<boolean>(false);
   readonly propertyId = signal(0);
   readonly planId = signal<number | null>(null);
   readonly plan = signal<RatePlan | null>(null);
@@ -112,6 +112,7 @@ export class Rateplaneform implements OnInit {
     );
 
     if (planId > 0) {
+      this.isEdit.set(true);
       this.planId.set(planId);
       this.loadPlan(planId);
     }
@@ -232,8 +233,13 @@ export class Rateplaneform implements OnInit {
     };
 
     const current = this.plan();
-
-    const request$ = current
+    if(current && !this.isEdit()){
+this.error.set(
+    'تعذر تحديد  خطه التسعير المطلوب تعديلها.',
+  );
+  return;
+    }
+    const request$ =this.isEdit()&& current
       ? this.api.updateRatePlan(
           current.id,
           current.rowVersion,

@@ -13,6 +13,7 @@ import {
 
 import { Services } from '../../../Service/services';
 import { ServiceRecord } from '../../../Models/services';
+import { Permissionservice } from '../../../Service/permissionservice';
 @Component({
  imports: [
     CommonModule,
@@ -25,7 +26,7 @@ export class Servicedetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(Services);
-
+ readonly permissions=inject(Permissionservice);
   readonly item = signal<ServiceRecord | null>(
     null,
   );

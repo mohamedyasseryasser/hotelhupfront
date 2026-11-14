@@ -18,11 +18,12 @@ import { Cancellationpolicy } from '../../../Service/cancellationpolicy';
 import { Propertydepositpolicyservice } from '../../../Service/depositservice';
 import { CancellationPolicyRecord, CancellationPolicyStatus } from '../../../Models/cancellationpolicy';
 import { DepositPolicyRecord } from '../../../Models/depositpolicy';
-import { forkJoin } from 'rxjs';
-import { readonly } from '@angular/forms/signals';
-import { DatePipe } from '@angular/common';
+import { forkJoin, from } from 'rxjs';
+import { form, readonly } from '@angular/forms/signals';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { RoomTypeRecord } from '../../../Models/roomtype';
 import { Roomtypeservice } from '../../../Service/roomtypeservice';
+import { Permissionservice } from '../../../Service/permissionservice';
 interface ReservationFormState {
   guestId: number;
   checkInDate: string;
@@ -39,7 +40,13 @@ interface ReservationFormState {
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
-  imports: [FormsModule,DatePipe, RouterLink,Avaliavility],
+imports: [
+  FormsModule,
+  DatePipe,
+  DecimalPipe,
+  RouterLink,
+  Avaliavility,
+],
   templateUrl: './reservationform.html',
   styleUrl: './reservationform.css',
 })
@@ -79,7 +86,7 @@ readonly roomTypes =
   readonly depositPolicies = signal<
     DepositPolicyRecord[]
   >([]);
-
+readonly permissions=inject(Permissionservice);
   readonly saving = signal(false);
   readonly loading = signal(false);
   readonly policiesLoading = signal(false);
@@ -422,8 +429,7 @@ clampChildren(
   }
 
   this.policiesLoading.set(true);
-
-  forkJoin({
+   forkJoin({
     cancellation:
       this.cancellationApi.getPolicies(propertyId),
 

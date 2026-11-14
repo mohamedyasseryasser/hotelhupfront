@@ -1,12 +1,13 @@
 <main class="details" dir="rtl">
- <button (click)="logout()">logout</button>
-
-  <a class="back" routerLink="/properties">
-    ← العودة إلى العقارات
-  </a>
+  <header class="details-toolbar">
+    @if(isadmin()){
+    <a class="back" routerLink="/properties">← العودة إلى العقارات</a>
+    }
+    <button class="secondary details-logout" type="button" (click)="logout()">تسجيل الخروج</button>
+  </header>
 
   @if (loading()) {
-    <div class="state">
+    <div class="state" role="status" aria-live="polite">
       جارٍ تحميل العقار...
     </div>
   } @else if (error()) {
@@ -14,12 +15,12 @@
       {{ error() }}
     </p>
   } @else if (property(); as item) {         
-    <section class="card">
+    <section class="card property-details-card" aria-label="تفاصيل العقار">
 
-      <div class="heading">
+      <header class="heading">
         <div>
           <p class="eyebrow">
-            PROPERTY DETAILS
+            HOTELHUP / تفاصيل العقار
           </p>
 
           <h1>
@@ -35,9 +36,9 @@
   {{ item.status === PropertyStatus.Active ? 'نشط' : 'غير نشط' }}
 </span>
 
-      </div>
+      </header>
 
-      <dl>
+      <dl class="property-metadata">
         <dt>الوصف</dt>
         <dd>{{ item.description || '—' }}</dd>
 
@@ -60,7 +61,7 @@
       </dl>
 
       @if (item.settingsResponse; as settings) {
-        <section class="settings-summary">
+        <section class="settings-summary" aria-label="ملخص إعدادات العقار">
 
           <h2>
             ملخص الإعدادات
@@ -82,7 +83,7 @@
         </section>
       }
 
-      <div class="actions">
+      <div class="actions" aria-label="إجراءات العقار">
  <a
           class="secondary"
           [routerLink]="['/properties', item.id, 'taxes']"
@@ -120,44 +121,55 @@
 >
   عرض سياسات المقدم
 </a> 
+@if (permissions.canViewReservations()) {
+
 <a
   class="secondary"
-    [class.hidden]="!permissions.canViewReservations()"
-
+ 
   [routerLink]="['/reservations']"
   
   [queryParams]="{propertyId: item.id }"
 >
   عرض الحجوزات
-</a>
+</a>}
+@if (permissions.canViewServices()) {
+
 <a
   class="secondary"
-    [class.hidden]="!permissions.canviewservices()"
-
+ 
   [routerLink]="['/services']"
   
   [queryParams]="{propertyId: item.id }"
 >
   عرض الخدمات
-</a><a
-  class="secondary"
-    [class.hidden]="!permissions.canviewservices()"
+</a>
+}
+@if (permissions.canViewReports()) {
 
+<a
+  class="secondary"
+ 
   [routerLink]="['/reports']"
   
   [queryParams]="{propertyId: item.id }"
 >
   عرض التقارير
-</a><a
-  class="secondary"
-    [class.hidden]="!permissions.canviewservices()"
+</a>
+}
+@if (permissions.canViewExpenses()) {
 
+<a
+  class="secondary"
+ 
   [routerLink]="['/expenses']"
   
   [queryParams]="{propertyId: item.id }"
 >
   عرض المصروفات
 </a>
+}
+@if (permissions.canViewUsers()) {
+
   <a
   class="secondary"
   routerLink="/users"
@@ -166,27 +178,34 @@
 >
   موظفون العقار
 </a>
+}
+@if (permissions.canViewGuests()) {
+
          <a class="secondary" [routerLink]="['/properties', item.id, 'guests']"
           [class.hidden]="!permissions.canViewGuests()">الضيوف</a>
-        <a class="secondary" [routerLink]="['/properties', item.id, 'rate-plans']"
+}
+     @if (permissions.canViewRatePlans()) {
+
+          <a class="secondary" [routerLink]="['/properties', item.id, 'rate-plans']"
          [class.hidden]="!permissions.canViewRatePlans()">خطط الأسعار</a>
-        <a
+      }@if (permissions.canUpdateProperty()) {
+
+       <a
           class="secondary"
           [routerLink]="['/properties', item.id, 'settings']"
-  [class.hidden]="!permissions.canViewProperties()"
-
+ 
         >
           الإعدادات
-        </a>
-         
+        </a>}
+         @if (permissions.canUpdateProperty()) {
+
         <a
           class="primary"
           [routerLink]="['/properties', item.id, 'edit']"
-  [class.hidden]="!permissions.canUpdateProperty()"
-        >
+         >
           تعديل
         </a>
-
+      }
         @if (item.status === PropertyStatus.Active) {
           <button
             class="danger"

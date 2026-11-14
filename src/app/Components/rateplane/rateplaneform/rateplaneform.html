@@ -180,6 +180,10 @@
 
           <!-- Actions -->
           <div class="d-flex gap-2 mt-4">
+           @if (
+  (isEdit() && permissions.canUpdateRatePlan()) ||
+  (!isEdit() && permissions.canCreateRatePlan())
+) {
             <button
               class="btn btn-primary"
               type="submit"
@@ -187,7 +191,7 @@
             >
               {{ saving() ? 'جارٍ الحفظ...' : 'حفظ' }}
             </button>
-
+          }
             <a
               class="btn btn-outline-secondary"
               [routerLink]="['/properties', propertyId(), 'rate-plans']"
