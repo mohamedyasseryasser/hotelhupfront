@@ -768,11 +768,11 @@ permissions.canCancelReservation()              ) {
                     <strong>{{ cancellation.fixedCancellationFee | number:'1.2-2' }}</strong>
                   </div>
                   <div class="snapshot-field">
-                    <span>Cutoff</span>
+                    <span> مهلة الإلغاء قبل موعد الوصول (بالساعات)</span>
                     <strong>{{ cancellation.cutoffHours }} ساعة</strong>
                   </div>
                   <div class="snapshot-field">
-                    <span>Non-refundable</span>
+                    <span>غير قابل لي الاستراد</span>
                     <strong
                       [class.text-danger]="cancellation.isNonRefundable"
                       [class.text-success]="!cancellation.isNonRefundable"
