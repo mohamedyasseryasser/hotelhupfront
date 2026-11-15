@@ -1,2 +1,47 @@
-:host { display: block; }
-.table th { white-space: nowrap; }
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--app-background, #f6f8fc);
+  color: var(--app-text, #26344a);
+}
+
+.rateplan-list-page {
+  max-width: 1280px;
+}
+
+.rateplan-list-page .card {
+  padding: 0;
+  border: 1px solid var(--app-border, #e6ebf2) !important;
+}
+
+.rateplan-list-page .card-header {
+  border-bottom-color: var(--app-border, #e6ebf2);
+}
+
+.rateplan-list-page .table {
+  min-width: 760px;
+}
+
+.rateplan-list-page .table thead th {
+  color: #536178;
+  font-size: .8rem;
+  white-space: nowrap;
+}
+
+.rateplan-list-page .table tbody td {
+  vertical-align: middle;
+}
+
+.rateplan-list-page .table tbody td:first-child {
+  min-width: 210px;
+}
+
+.rateplan-list-page .table tbody td:last-child {
+  min-width: 190px;
+}
+
+@media (max-width: 575.98px) {
+  .rateplan-list-page {
+    padding-top: 1.25rem !important;
+  }
+}
